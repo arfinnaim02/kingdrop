@@ -17954,3 +17954,78 @@ hr {
     font-size: 12px !important;
   }
 }
+
+
+/* =========================================================
+   KINGDROPP PHASE 2A — EDITORIAL STOREFRONT
+   Keeps inherited product grids and admin-builder markup intact.
+   ========================================================= */
+.kingdropp-home .home-trust-strip {
+  background: var(--brand-warm-white);
+  border-block: 1px solid var(--brand-stone);
+}
+.kingdropp-editorial-intro {
+  padding: clamp(40px, 6vw, 92px) 0;
+  background: var(--brand-warm-white);
+  color: var(--brand-jet);
+}
+.kingdropp-editorial-inner {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 32px;
+}
+.kingdropp-editorial-kicker {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #665a4d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+.kingdropp-editorial-inner h2 {
+  max-width: 820px;
+  margin: 0;
+  font-size: clamp(2.4rem, 5vw, 5.8rem);
+  line-height: 1.02;
+  font-weight: 650;
+  letter-spacing: -.055em;
+  text-transform: none;
+}
+.kingdropp-editorial-inner p {
+  max-width: 550px;
+  margin: 20px 0 0;
+  color: #615c56;
+  line-height: 1.65;
+}
+.kingdropp-editorial-link {
+  flex-shrink: 0;
+  padding: 13px 0;
+  border-bottom: 1px solid currentColor;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+.kingdropp-editorial-link:focus-visible {
+  outline: 2px solid var(--brand-jet);
+  outline-offset: 5px;
+}
+.kingdropp-home .premium-hero-eyebrow,
+.kingdropp-home .home-brand-story .eyebrow {
+  letter-spacing: .21em;
+}
+.kingdropp-home .home-campaign-title {
+  font-style: normal;
+  letter-spacing: -.05em;
+}
+@media (max-width: 767px) {
+  .kingdropp-editorial-intro { padding: 38px 0 44px; }
+  .kingdropp-editorial-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .kingdropp-editorial-inner h2 { font-size: clamp(2rem, 10vw, 3.4rem); }
+  .kingdropp-editorial-inner p { margin-top: 14px; font-size: 14px; }
+  .kingdropp-editorial-link { margin-top: 4px; }
+}
