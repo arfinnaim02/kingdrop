@@ -136,7 +136,8 @@ function absoluteUrl(value: string) {
 
 function logoUrl(): string {
   const configured = process.env.EMAIL_LOGO_URL?.trim();
-  return configured ? absoluteUrl(configured) : "";
+  if (!configured || /game[ -]?on[ -]?garb|gameongarb/i.test(configured)) return "";
+  return absoluteUrl(configured);
 }
 
 function formatEventTitle(
@@ -836,7 +837,7 @@ export function renderNotificationEmail(
                   `
                   : ""}
 
-                ${orderNumber
+                ${trackUrl
                   ? `
                     <tr>
                       <td align="center" style="padding:30px 28px 4px;">
