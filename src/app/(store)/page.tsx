@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 
 import {
   PackageCheck,
@@ -225,11 +226,11 @@ export default async function Home() {
               eyebrow="Sports"
               title={
                 section.heading ??
-                "Built to move."
+                "Made for the moment."
               }
               subtitle={
                 section.subtitle ??
-                "Performance for every day."
+                "Versatile style for every day."
               }
               link={
                 section.ctaLink ??
@@ -237,7 +238,7 @@ export default async function Home() {
               }
               cta={
                 section.ctaLabel ??
-                "Explore Sports"
+                "Explore the Collection"
               }
               image={
                 section.image
@@ -255,11 +256,11 @@ export default async function Home() {
               eyebrow="Polo"
               title={
                 section.heading ??
-                "Made for every day."
+                "Refined essentials."
               }
               subtitle={
                 section.subtitle ??
-                "Polished, relaxed and ready."
+                "Modern fits. Effortless confidence."
               }
               link={
                 section.ctaLink ??
@@ -267,7 +268,7 @@ export default async function Home() {
               }
               cta={
                 section.ctaLabel ??
-                "Explore Polo"
+                "Explore the Edit"
               }
               image={
                 section.image
@@ -285,7 +286,7 @@ export default async function Home() {
               key={section.id}
               heading={
                 section.heading ??
-                "Shop by Category"
+                "Discover Your Fit"
               }
               categories={
                 categories.slice(
@@ -302,7 +303,7 @@ export default async function Home() {
               key={section.id}
               title={
                 section.heading ??
-                "Trending Now"
+                "Most Wanted"
               }
               products={configuredProducts(
                 section,
@@ -399,7 +400,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="home-page">
+    <div className="home-page kingdropp-home">
       <PromotionPopup
         enabled={
           promotionPopup.enabled
@@ -414,6 +415,17 @@ export default async function Home() {
           promotionPopup.delayMs
         }
       />
+
+      <section className="kingdropp-editorial-intro" aria-label="KINGDROPP collection introduction">
+        <div className="container kingdropp-editorial-inner">
+          <div>
+            <span className="kingdropp-editorial-kicker">{BRAND.name} / THE EVERYDAY EDIT</span>
+            <h2>Style that speaks for itself.</h2>
+            <p>Considered fits, confident essentials, and effortless everyday dressing.</p>
+          </div>
+          <Link href="/shop?sort=newest" className="kingdropp-editorial-link">Explore New Arrivals <span aria-hidden="true">↗</span></Link>
+        </div>
+      </section>
 
       {homepageContent.length >
       0 ? (
@@ -562,12 +574,12 @@ function Hero({
           title:
             firstSlide?.title ??
             section.heading ??
-            "Game on. Every day.",
+            "Rule Your Style.",
 
           subtitle:
             firstSlide?.subtitle ??
             section.subtitle ??
-            "Sports. Style. Everything between.",
+            "Discover premium everyday essentials designed to move with you.",
 
           image:
             firstSlide?.image ??
@@ -608,17 +620,17 @@ function TrustStrip() {
     {
       icon: RefreshCw,
       title:
-        "Easy Exchange",
+        "Customer Support",
       subtitle:
-        "Hassle-free process",
+        "Here to help with orders",
     },
 
     {
       icon: PackageCheck,
       title:
-        "100% Original",
+        "Thoughtfully Selected",
       subtitle:
-        "Quality you can trust",
+        "Everyday style essentials",
     },
   ];
 
@@ -909,17 +921,17 @@ function BrandStory({
       <div className="container home-brand-story-inner">
         <div className="home-brand-story-copy">
           <div className="eyebrow">
-            GameOn Garb
+            {BRAND.name}
           </div>
 
           <h2 className="display">
             {heading ??
-              "Experience the thrill."}
+              "Rule Your Style."}
           </h2>
 
           <p>
             {subtitle ??
-              "More than what you wear. It’s a movement. It’s a mindset."}
+              "Confident dressing starts with pieces that feel like you."}
           </p>
 
           <Link
