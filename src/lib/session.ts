@@ -155,7 +155,7 @@ export async function getApiAdmin(
 
   const token =
     cookie.match(
-      /(?:^|;\s*)gog_session=([^;]+)/,
+      /(?:^|;\s*)kingdropp_session=([^;]+)/,
     )?.[1];
 
   if (!token) {
@@ -222,7 +222,7 @@ export async function getApiUser(
 
   const token =
     cookie.match(
-      /(?:^|;\s*)gog_session=([^;]+)/,
+      /(?:^|;\s*)kingdropp_session=([^;]+)/,
     )?.[1];
 
   if (!token) {
@@ -308,7 +308,7 @@ export async function canAccessOrder(
 
   const token =
     cookie.match(
-      /(?:^|;\s*)gog_order_access=([^;]+)/,
+      /(?:^|;\s*)kingdropp_order_access=([^;]+)/,
     )?.[1];
 
   if (!token) {
