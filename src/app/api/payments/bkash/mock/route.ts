@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { allowMockBkashPayment } from "@/lib/payments/bkash/mock-access";
 import { canAccessOrder } from "@/lib/session";
 export async function POST(request: Request) {
   try {
-    if (process.env.NODE_ENV === "production" || (process.env.BKASH_MODE ?? "sandbox") !== "sandbox")
+    if (!allowMockBkashPayment(process.env.NODE_ENV, process.env.BKASH_MODE))
       return NextResponse.json(
         { error: "Mock execution is disabled in production mode." },
         { status: 403 },
