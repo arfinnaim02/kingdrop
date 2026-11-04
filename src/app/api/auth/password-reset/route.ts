@@ -17,6 +17,7 @@ function recoveryConfig() {
   const enabled = process.env.KINGDROPP_PASSWORD_RESET_EMAIL_ENABLED === "true";
 
   if (!enabled || !siteUrl || !apiKey || !from ||
+      /game[ -]?on[ -]?garb|gameongarb/i.test(siteUrl) ||
       /game[ -]?on[ -]?garb|gameongarb/i.test(from) ||
       (process.env.NODE_ENV === "production" && !siteUrl.startsWith("https://"))) {
     return null;
