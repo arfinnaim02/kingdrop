@@ -10,7 +10,6 @@ import {
 
 import {
   ArrowRight,
-  ExternalLink,
   Mail,
   MapPin,
   Phone,
@@ -172,7 +171,6 @@ async function readResponse(
    ========================================================= */
 
 export function StoreFooter({
-  settings,
   navCategories,
 }: StoreFooterProps) {
   const [
