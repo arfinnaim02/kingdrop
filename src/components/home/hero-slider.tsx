@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { BRAND } from "@/lib/brand";
+
 import {
   ChevronRight,
 } from "lucide-react";
@@ -546,7 +548,7 @@ export function HeroSlider({
     <section
       className="premium-hero"
       aria-roledescription="carousel"
-      aria-label="GameOn Garb featured banners"
+      aria-label={`${BRAND.name} featured collections` }
       style={
         heroStyle
       }
