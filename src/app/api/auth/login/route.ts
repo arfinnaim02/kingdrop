@@ -25,7 +25,7 @@ import {
 } from "@/lib/roles";
 
 import {
-  rateLimit,
+  strictRateLimit,
   requestIp,
 } from "@/lib/security/rate-limit";
 
@@ -65,7 +65,7 @@ export async function POST(
     );
 
   const limit =
-    rateLimit(
+    await strictRateLimit(
       `login:${ip}`,
       8,
       10 *

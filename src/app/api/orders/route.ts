@@ -34,6 +34,7 @@ import {
 import {
 
   createOrderAccessToken,
+  ORDER_ACCESS_COOKIE_NAME,
 
 } from "@/lib/auth";
 
@@ -71,6 +72,8 @@ import {
   getApiUser,
 
 } from "@/lib/session";
+
+import { isStoreOpen, enabledPaymentMethods } from "@/lib/store-availability";
 
 import {
   sendOrderToTelegram,
@@ -395,17 +398,7 @@ export async function POST(
 
 
 
-    if (
-
-      general.storeLive ===
-
-        false ||
-
-      general.maintenanceMode ===
-
-        true
-
-    ) {
+    if (!isStoreOpen(general)) {
 
       return NextResponse.json(
 
@@ -477,53 +470,9 @@ export async function POST(
 
 
 
-    const payments =
-
-      (
-
-        settings.find(
-
-          (
-
-            item,
-
-          ) =>
-
-            item.key ===
-
-            "payments",
-
-        )?.value ??
-
-        {
-
-          codEnabled:
-
-            true,
-
-
-
-          bkashEnabled:
-
-            true,
-
-        }
-
-      ) as {
-
-        codEnabled:
-
-          boolean;
-
-
-
-        bkashEnabled:
-
-          boolean;
-
-      };
-
-
+    const payments = enabledPaymentMethods(
+      settings.find((item) => item.key === "payments")?.value,
+    );
 
     const bkashAllowed =
       payments.bkashEnabled &&
@@ -2354,7 +2303,7 @@ export async function POST(
 
     response.cookies.set(
 
-      "gog_order_access",
+      ORDER_ACCESS_COOKIE_NAME,
 
 
 

@@ -1,3 +1,5 @@
+import { isStoreOpen, enabledPaymentMethods } from "@/lib/store-availability";
+
 import {
   NextResponse,
 } from "next/server";
@@ -37,6 +39,7 @@ export async function GET(
             in: [
               "shipping",
               "payments",
+              "general",
             ],
           },
         },
@@ -59,29 +62,14 @@ export async function GET(
           }
         | undefined;
 
-    const payments =
-      rows.find(
-        (
-          row,
-        ) =>
-          row.key ===
-          "payments",
-      )?.value as
-        | {
-            codEnabled?:
-              boolean;
-
-            bkashEnabled?:
-              boolean;
-          }
-        | undefined;
-
-    const configuredBkashEnabled =
-      payments?.bkashEnabled ??
-      true;
+    const general = rows.find((row) => row.key === "general")?.value;
+    const storeOpen = isStoreOpen(general);
+    const payments = enabledPaymentMethods(
+      rows.find((row) => row.key === "payments")?.value,
+    );
 
     const bkashAllowed =
-      configuredBkashEnabled &&
+      storeOpen && payments.bkashEnabled &&
       isBkashAllowedForPhone(
         phone,
       );
@@ -96,8 +84,7 @@ export async function GET(
         150,
 
       codEnabled:
-        payments?.codEnabled ??
-        true,
+        storeOpen && payments.codEnabled,
 
       bkashEnabled:
         bkashAllowed,
@@ -121,7 +108,7 @@ export async function GET(
         150,
 
       codEnabled:
-        true,
+        false,
 
       bkashEnabled:
         false,

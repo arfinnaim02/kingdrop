@@ -31,7 +31,7 @@ const OAUTH_STATE_MAX_AGE_SECONDS =
   60 * 10;
 
 const OAUTH_RETURN_COOKIE_NAME =
-  "gog_oauth_return";
+  "kingdropp_oauth_return";
 
 /* =========================================================
    COOKIE NAMES
@@ -41,7 +41,7 @@ function stateCookieName(
   provider:
     SupportedOAuthProvider,
 ) {
-  return `gog_oauth_state_${provider.toLowerCase()}`;
+  return `kingdropp_oauth_state_${provider.toLowerCase()}`;
 }
 
 function isSecureCookie() {

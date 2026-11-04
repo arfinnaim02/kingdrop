@@ -44,6 +44,26 @@ if (!present("DATABASE_URL")) {
 }
 if (!present("SESSION_SECRET")) errors.push("SESSION_SECRET is required.");
 
+// Phase 4B: never depend on per-process rate limiting in production.
+if (process.env.NODE_ENV === "production") {
+  for (const key of ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"]) {
+    if (!present(key)) errors.push(`${key} is required for production auth protection.`);
+  }
+}
+
+if (process.env.KINGDROPP_PASSWORD_RESET_EMAIL_ENABLED === "true") {
+  for (const key of ["RESEND_API_KEY", "EMAIL_FROM"]) {
+    if (!present(key)) errors.push(`${key} is required when password recovery email is enabled.`);
+  }
+  if (/game[ -]?on[ -]?garb|gameongarb/i.test(process.env.EMAIL_FROM ?? "")) {
+    errors.push("Password recovery sender must not be the inherited brand.");
+  }
+} else {
+  warnings.push("Password reset email remains disabled until KINGDROPP provider details are verified.");
+}
+warnings.push("Verify explicit storeLive=true and maintenanceMode=false only after staging sign-off; absent settings now close the store.");
+warnings.push("Phase 4B rotates session/order-access cookie names; existing users will need to sign in again.");
+
 const telegramEnabled = process.env.KINGDROPP_TELEGRAM_ENABLED === "true";
 if (telegramEnabled) {
   for (const k of ["TELEGRAM_BOT_TOKEN", "TELEGRAM_ORDER_CHAT_ID", "TELEGRAM_WEBHOOK_SECRET"]) {

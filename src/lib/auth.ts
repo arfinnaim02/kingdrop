@@ -17,7 +17,10 @@ import {
    ========================================================= */
 
 export const SESSION_COOKIE_NAME =
-  "gog_session";
+  "kingdropp_session";
+
+export const ORDER_ACCESS_COOKIE_NAME =
+  "kingdropp_order_access";
 
 export const SESSION_MAX_AGE_SECONDS =
   60 *
@@ -434,7 +437,7 @@ export async function readOrderAccessToken(
    ========================================================= */
 
 export const OAUTH_PENDING_COOKIE_NAME =
-  "gog_oauth_pending";
+  "kingdropp_oauth_pending";
 
 export const OAUTH_PENDING_MAX_AGE_SECONDS =
   60 * 10;

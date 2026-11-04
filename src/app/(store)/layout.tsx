@@ -1,3 +1,5 @@
+import { isStoreOpen } from "@/lib/store-availability";
+
 import {
   StoreShell,
 } from "@/components/layout/store-shell";
@@ -84,9 +86,7 @@ export default async function StoreLayout({
       settings.tracking,
     );
 
-  const unavailable =
-    general.storeLive === false ||
-    general.maintenanceMode === true;
+  const unavailable = !isStoreOpen(general);
 
   return (
     <>
