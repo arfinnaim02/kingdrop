@@ -41,11 +41,11 @@ export const metadata:
   Metadata = {
   title: {
     absolute:
-      "About GameOn Garb | Sports, Fashion & Everyday Style in Bangladesh",
+      "About KINGDROPP | Premium Men\'s Fashion",
   },
 
   description:
-    "Discover GameOn Garb, a Bangladesh-based sports and lifestyle fashion brand. Learn our story, what we offer, delivery options, contact details, and visit our Mirpur store.",
+    "Learn about KINGDROPP, a contemporary premium menswear brand built around refined everyday style and confidence.",
 
   alternates: {
     canonical:
@@ -54,10 +54,10 @@ export const metadata:
 
   openGraph: {
     title:
-      "About GameOn Garb",
+      "About KINGDROPP",
 
     description:
-      "Sports, fashion and everyday essentials for people who live with energy. Discover the GameOn Garb story and visit our Mirpur store.",
+      "Discover KINGDROPP and our approach to premium men\'s fashion. Rule Your Style.",
 
     url:
       "/about",
