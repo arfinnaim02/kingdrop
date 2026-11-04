@@ -1,0 +1,316 @@
+import type {
+  Metadata,
+} from "next";
+
+import {
+  Suspense,
+} from "react";
+
+import {
+  ShopClient,
+} from "@/components/shop/shop-client";
+
+import {
+  ShopHeroSlider,
+} from "@/components/shop/shop-hero-slider";
+
+import {
+  getProducts,
+} from "@/lib/catalog";
+
+import {
+  db,
+  withDatabaseRetry,
+} from "@/lib/db";
+
+export const metadata:
+  Metadata = {
+  title:
+    "Shop",
+
+  description:
+    "Shop premium GameOn Garb sports and lifestyle fashion.",
+};
+
+export const dynamic =
+  "force-dynamic";
+
+export default async function ShopPage() {
+  /*
+   * Deliberately load Shop data in a
+   * controlled sequence.
+   *
+   * This avoids opening many Prisma
+   * connections simultaneously during
+   * local development / Neon wake-up.
+   */
+
+  const products =
+    await withDatabaseRetry(
+      () =>
+        getProducts(),
+    );
+
+  const categories =
+    await withDatabaseRetry(
+      () =>
+        db.category.findMany({
+          where: {
+            active:
+              true,
+          },
+
+          orderBy: [
+            {
+              sortOrder:
+                "asc",
+            },
+
+            {
+              name:
+                "asc",
+            },
+          ],
+
+          select: {
+            id:
+              true,
+
+            name:
+              true,
+
+            slug:
+              true,
+
+            description:
+              true,
+
+            parentId:
+              true,
+
+            sortOrder:
+              true,
+          },
+        }),
+    );
+
+  const productCategoryRows =
+    await withDatabaseRetry(
+      () =>
+        db.productCategory.findMany({
+          select: {
+            productId:
+              true,
+
+            categoryId:
+              true,
+
+            primary:
+              true,
+          },
+        }),
+    );
+
+  const shopHeroSlides =
+    await withDatabaseRetry(
+      () =>
+        db.shopHeroSlide.findMany({
+          where: {
+            enabled:
+              true,
+          },
+
+          orderBy: [
+            {
+              sortOrder:
+                "asc",
+            },
+
+            {
+              createdAt:
+                "asc",
+            },
+          ],
+
+          select: {
+            id:
+              true,
+
+            title:
+              true,
+
+            subtitle:
+              true,
+
+            image:
+              true,
+
+            mobileImage:
+              true,
+
+            ctaLabel:
+              true,
+
+            ctaLink:
+              true,
+
+            enabled:
+              true,
+
+            sortOrder:
+              true,
+          },
+        }),
+    );
+
+  const otherSetting =
+    await withDatabaseRetry(
+      () =>
+        db.storeSetting.findUnique({
+          where: {
+            key:
+              "other",
+          },
+        }),
+    );
+
+  const other =
+    (
+      otherSetting?.value ??
+      {}
+    ) as {
+      itemsPerPage?:
+        number;
+    };
+
+  const productCategoryMap =
+    productCategoryRows.reduce<
+      Record<
+        string,
+        string[]
+      >
+    >(
+      (
+        map,
+        row,
+      ) => {
+        if (
+          !map[
+            row.productId
+          ]
+        ) {
+          map[
+            row.productId
+          ] = [];
+        }
+
+        map[
+          row.productId
+        ].push(
+          row.categoryId,
+        );
+
+        return map;
+      },
+
+      {},
+    );
+
+  const primaryCategoryMap =
+    productCategoryRows.reduce<
+      Record<
+        string,
+        string
+      >
+    >(
+      (
+        map,
+        row,
+      ) => {
+        if (
+          row.primary
+        ) {
+          map[
+            row.productId
+          ] =
+            row.categoryId;
+        }
+
+        return map;
+      },
+
+      {},
+    );
+
+  return (
+    <main className="premium-shop-page">
+      <ShopHeroSlider
+        slides={
+          shopHeroSlides
+        }
+      />
+
+      <Suspense
+        fallback={
+          <ShopSkeleton />
+        }
+      >
+        <ShopClient
+          products={
+            products
+          }
+
+          categories={
+            categories
+          }
+
+          productCategoryMap={
+            productCategoryMap
+          }
+
+          primaryCategoryMap={
+            primaryCategoryMap
+          }
+
+          itemsPerPage={
+            other.itemsPerPage ??
+            12
+          }
+        />
+      </Suspense>
+    </main>
+  );
+}
+
+function ShopSkeleton() {
+  return (
+    <section className="container premium-shop-loading">
+      <div className="premium-shop-loading-bar skeleton" />
+
+      <div className="premium-shop-loading-grid">
+        {Array.from({
+          length:
+            8,
+        }).map(
+          (
+            _,
+            index,
+          ) => (
+            <div
+              key={
+                index
+              }
+              className="premium-shop-loading-card"
+            >
+              <div className="premium-shop-loading-image skeleton" />
+
+              <div className="premium-shop-loading-line skeleton" />
+
+              <div className="premium-shop-loading-line is-short skeleton" />
+            </div>
+          ),
+        )}
+      </div>
+    </section>
+  );
+}

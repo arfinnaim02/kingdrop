@@ -1,0 +1,5266 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+
+import {
+  AlertTriangle,
+  ArrowDownUp,
+  Boxes,
+  CheckCircle2,
+  ChevronRight,
+  Download,
+  FileClock,
+  FileUp,
+  Minus,
+  Package,
+  PackageCheck,
+  PackageX,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Upload,
+  Warehouse,
+  X,
+} from "lucide-react";
+
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  useRouter,
+} from "next/navigation";
+
+import styles from "./inventory-manager.module.css";
+
+/* =========================================================
+   TYPES
+   ========================================================= */
+
+export type InventoryVariant = {
+  id:
+    string;
+
+  productId:
+    string;
+
+  product:
+    string;
+
+  productStatus:
+    string;
+
+  category:
+    string;
+
+  primaryCategoryId:
+   string |
+    null;
+
+  categoryIds:
+    string[];
+
+  image:
+    string |
+    null;
+
+  imageAlt:
+    string;
+
+  sku:
+    string;
+
+  size:
+    string |
+    null;
+
+  color:
+    string |
+    null;
+
+  colorHex:
+    string |
+    null;
+
+  stock:
+    number;
+
+  lowStockThreshold:
+    number;
+
+  active:
+    boolean;
+};
+
+export type InventoryCategory = {
+  id:
+    string;
+
+  name:
+    string;
+
+  parentId:
+    string |
+    null;
+
+  sortOrder:
+    number;
+
+  active:
+    boolean;
+};
+
+export type InventoryHistoryItem = {
+  id:
+    string;
+
+  variantId:
+    string;
+
+  product:
+    string;
+
+  sku:
+    string;
+
+  size:
+    string |
+    null;
+
+  color:
+    string |
+    null;
+
+  quantityChange:
+    number;
+
+  beforeQuantity:
+    number;
+
+  afterQuantity:
+    number;
+
+  type:
+    string;
+
+  reference:
+    string |
+    null;
+
+  reason:
+    string;
+
+  actor:
+    string;
+
+  actorEmail:
+    string |
+    null;
+
+  createdAt:
+    string;
+};
+
+type StockFilter =
+  | "ALL"
+  | "IN_STOCK"
+  | "LOW"
+  | "OUT"
+  | "INACTIVE";
+
+type SortOption =
+  | "PRODUCT"
+  | "STOCK_ASC"
+  | "STOCK_DESC"
+  | "SKU";
+
+type ViewMode =
+  | "STOCK"
+  | "HISTORY";
+
+  type AdjustmentType =
+  | "PURCHASE"
+  | "DAMAGE"
+  | "MANUAL_ADJUSTMENT"
+  | "CORRECTION";
+
+type HistoryMovementFilter =
+  | "ALL"
+  | "IN"
+  | "OUT";
+
+
+  type RestockCsvRow = {
+  sku:
+    string;
+
+  quantity:
+    number;
+
+  variant:
+    InventoryVariant | null;
+
+  error:
+    string | null;
+};
+
+type CsvImportState = {
+  filename:
+    string;
+
+  rows:
+    RestockCsvRow[];
+};
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function stockState(
+  variant:
+    InventoryVariant,
+) {
+  if (
+    !variant.active
+  ) {
+    return "INACTIVE";
+  }
+
+  if (
+    variant.stock <=
+    0
+  ) {
+    return "OUT";
+  }
+
+  if (
+    variant.stock <=
+    variant.lowStockThreshold
+  ) {
+    return "LOW";
+  }
+
+  return "IN_STOCK";
+}
+
+function stockLabel(
+  state:
+    ReturnType<
+      typeof stockState
+    >,
+) {
+  if (
+    state ===
+    "OUT"
+  ) {
+    return "Out of Stock";
+  }
+
+  if (
+    state ===
+    "LOW"
+  ) {
+    return "Low Stock";
+  }
+
+  if (
+    state ===
+    "INACTIVE"
+  ) {
+    return "Inactive";
+  }
+
+  return "In Stock";
+}
+
+function formatType(
+  value:
+    string,
+) {
+  return value
+    .replaceAll(
+      "_",
+      " ",
+    )
+    .toLowerCase()
+    .replace(
+      /\b\w/g,
+      (
+        char,
+      ) =>
+        char.toUpperCase(),
+    );
+}
+
+function formatDateTime(
+  value:
+    string,
+) {
+  return new Intl.DateTimeFormat(
+    "en-BD",
+    {
+      day:
+        "2-digit",
+
+      month:
+        "short",
+
+      year:
+        "numeric",
+
+      hour:
+        "numeric",
+
+      minute:
+        "2-digit",
+    },
+  ).format(
+    new Date(
+      value,
+    ),
+  );
+}
+
+function csvCell(
+  value:
+    string |
+    number |
+    boolean |
+    null |
+    undefined,
+) {
+  const text =
+    value ===
+      null ||
+    value ===
+      undefined
+      ? ""
+      : String(
+          value,
+        );
+
+  return `"${text.replaceAll(
+    "\"",
+    "\"\"",
+  )}"`;
+}
+function parseCsvLine(
+  line:
+    string,
+) {
+  const cells:
+    string[] =
+    [];
+
+  let current =
+    "";
+
+  let quoted =
+    false;
+
+  for (
+    let index =
+      0;
+    index <
+    line.length;
+    index +=
+      1
+  ) {
+    const char =
+      line[index];
+
+    if (
+      char ===
+      "\""
+  ) {
+      if (
+        quoted &&
+        line[
+          index +
+            1
+        ] ===
+          "\""
+      ) {
+        current +=
+          "\"";
+
+        index +=
+          1;
+      } else {
+        quoted =
+          !quoted;
+      }
+
+      continue;
+    }
+
+    if (
+      char ===
+        "," &&
+      !quoted
+    ) {
+      cells.push(
+        current.trim(),
+      );
+
+      current =
+        "";
+
+      continue;
+    }
+
+    current +=
+      char;
+  }
+
+  cells.push(
+    current.trim(),
+  );
+
+  return cells;
+}
+
+function downloadCsv(
+  filename:
+    string,
+
+  rows:
+    (
+      string |
+      number |
+      boolean |
+      null |
+      undefined
+    )[][],
+) {
+  const csv =
+    rows
+      .map(
+        (
+          row,
+        ) =>
+          row
+            .map(
+              csvCell,
+            )
+            .join(
+              ",",
+            ),
+      )
+      .join(
+        "\r\n",
+      );
+
+  const blob =
+    new Blob(
+      [
+        "\uFEFF",
+        csv,
+      ],
+      {
+        type:
+          "text/csv;charset=utf-8;",
+      },
+    );
+
+  const url =
+    URL.createObjectURL(
+      blob,
+    );
+
+  const link =
+    document.createElement(
+      "a",
+    );
+
+  link.href =
+    url;
+
+  link.download =
+    filename;
+
+  document.body.appendChild(
+    link,
+  );
+
+  link.click();
+
+  link.remove();
+
+  URL.revokeObjectURL(
+    url,
+  );
+}
+
+/* =========================================================
+   MANAGER
+   ========================================================= */
+
+export function InventoryManager({
+  initialVariants,
+  initialHistory,
+  categories,
+}: {
+  initialVariants:
+    InventoryVariant[];
+
+  initialHistory:
+    InventoryHistoryItem[];
+
+  categories:
+    InventoryCategory[];
+}) {
+  const router =
+    useRouter();
+
+  const [
+    variants,
+    setVariants,
+  ] =
+    useState(
+      initialVariants,
+    );
+
+  const [
+    history,
+    setHistory,
+  ] =
+    useState(
+      initialHistory,
+    );
+
+  const [
+    view,
+    setView,
+  ] =
+    useState<ViewMode>(
+      "STOCK",
+    );
+
+  const [
+    query,
+    setQuery,
+  ] =
+    useState("");
+
+      const [
+    categoryFilter,
+    setCategoryFilter,
+  ] =
+    useState(
+      "ALL",
+    );
+
+  const [
+    subcategoryFilter,
+    setSubcategoryFilter,
+  ] =
+    useState(
+      "ALL",
+    );
+
+  const [
+    stockFilter,
+    setStockFilter,
+  ] =
+    useState<StockFilter>(
+      "ALL",
+    );
+
+  const [
+    sort,
+    setSort,
+  ] =
+    useState<SortOption>(
+      "PRODUCT",
+    );
+
+  const [
+    selected,
+    setSelected,
+  ] =
+    useState<InventoryVariant | null>(
+      null,
+    );
+
+      const [
+    bulkRestockOpen,
+    setBulkRestockOpen,
+  ] =
+    useState(
+      false,
+    );
+
+  const [
+    busy,
+    setBusy,
+  ] =
+    useState(
+      false,
+    );
+
+  const [
+    message,
+    setMessage,
+  ] =
+    useState("");
+
+  const [
+    error,
+    setError,
+  ] =
+    useState("");
+
+      const [
+    historyTypeFilter,
+    setHistoryTypeFilter,
+  ] =
+    useState(
+      "ALL",
+    );
+
+  const [
+    historyMovementFilter,
+    setHistoryMovementFilter,
+  ] =
+    useState<HistoryMovementFilter>(
+      "ALL",
+    );
+
+  const [
+    historyFrom,
+    setHistoryFrom,
+  ] =
+    useState("");
+
+  const [
+    historyTo,
+    setHistoryTo,
+  ] =
+    useState("");
+
+  useEffect(
+    () => {
+      setVariants(
+        initialVariants,
+      );
+
+      setHistory(
+        initialHistory,
+      );
+
+      setSelected(
+        (
+          current,
+        ) =>
+          current
+            ? initialVariants.find(
+                (
+                  variant,
+                ) =>
+                  variant.id ===
+                  current.id,
+              ) ??
+              null
+            : null,
+      );
+    },
+    [
+      initialVariants,
+      initialHistory,
+    ],
+  );
+
+  /* =======================================================
+     KPIS
+     ======================================================= */
+
+  const stats =
+    useMemo(
+      () => {
+        const active =
+          variants.filter(
+            (
+              variant,
+            ) =>
+              variant.active,
+          );
+
+        const totalUnits =
+          active.reduce(
+            (
+              total,
+              variant,
+            ) =>
+              total +
+              variant.stock,
+            0,
+          );
+
+        const low =
+          active.filter(
+            (
+              variant,
+            ) =>
+              variant.stock >
+                0 &&
+              variant.stock <=
+                variant.lowStockThreshold,
+          ).length;
+
+        const out =
+          active.filter(
+            (
+              variant,
+            ) =>
+              variant.stock <=
+              0,
+          ).length;
+
+        return {
+          variants:
+            variants.length,
+
+          active:
+            active.length,
+
+          totalUnits,
+
+          low,
+
+          out,
+        };
+      },
+      [
+        variants,
+      ],
+    );
+
+      /* =======================================================
+     CATEGORY HIERARCHY
+     ======================================================= */
+
+  const categoryMap =
+    useMemo(
+      () =>
+        new Map(
+          categories.map(
+            (
+              category,
+            ) => [
+              category.id,
+              category,
+            ],
+          ),
+        ),
+
+      [
+        categories,
+      ],
+    );
+
+  const rootCategories =
+    useMemo(
+      () =>
+        categories.filter(
+          (
+            category,
+          ) =>
+            !category.parentId,
+        ),
+
+      [
+        categories,
+      ],
+    );
+
+  function categoryLineage(
+    categoryId:
+      string |
+      null,
+  ) {
+    const lineage:
+      InventoryCategory[] =
+      [];
+
+    let currentId =
+      categoryId;
+
+    const visited =
+      new Set<
+        string
+      >();
+
+    while (
+      currentId &&
+      !visited.has(
+        currentId,
+      )
+    ) {
+      visited.add(
+        currentId,
+      );
+
+      const category =
+        categoryMap.get(
+          currentId,
+        );
+
+      if (
+        !category
+      ) {
+        break;
+      }
+
+      lineage.unshift(
+        category,
+      );
+
+      currentId =
+        category.parentId;
+    }
+
+    return lineage;
+  }
+
+  function rootCategoryIdFor(
+    categoryId:
+      string |
+      null,
+  ) {
+    const lineage =
+      categoryLineage(
+        categoryId,
+      );
+
+    return (
+      lineage[0]
+        ?.id ??
+      null
+    );
+  }
+
+  function directSubcategoryIdFor(
+    categoryId:
+      string |
+      null,
+  ) {
+    const lineage =
+      categoryLineage(
+        categoryId,
+      );
+
+    return (
+      lineage[1]
+        ?.id ??
+      null
+    );
+  }
+
+  function categoryDescendantIds(
+    categoryId:
+      string,
+  ) {
+    const result =
+      new Set<
+        string
+      >([
+        categoryId,
+      ]);
+
+    let changed =
+      true;
+
+    while (
+      changed
+    ) {
+      changed =
+        false;
+
+      for (
+        const category
+        of categories
+      ) {
+        if (
+          category.parentId &&
+          result.has(
+            category.parentId,
+          ) &&
+          !result.has(
+            category.id,
+          )
+        ) {
+          result.add(
+            category.id,
+          );
+
+          changed =
+            true;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  const availableSubcategories =
+    useMemo(
+      () => {
+        if (
+          categoryFilter ===
+          "ALL"
+        ) {
+          return [];
+        }
+
+        return categories.filter(
+          (
+            category,
+          ) =>
+            category.parentId ===
+            categoryFilter,
+        );
+      },
+
+      [
+        categories,
+        categoryFilter,
+      ],
+    );
+
+  /* =======================================================
+     FILTERED STOCK
+     ======================================================= */
+
+  const filteredVariants =
+    useMemo(
+      () => {
+        const cleanQuery =
+          query
+            .trim()
+            .toLowerCase();
+
+        const selectedCategoryIds =
+          categoryFilter ===
+          "ALL"
+            ? null
+            : categoryDescendantIds(
+                categoryFilter,
+              );
+
+        const selectedSubcategoryIds =
+          subcategoryFilter ===
+          "ALL"
+            ? null
+            : categoryDescendantIds(
+                subcategoryFilter,
+              );
+
+        const result =
+          variants.filter(
+            (
+              variant,
+            ) => {
+              const searchable =
+                [
+                  variant.product,
+                  variant.sku,
+                  variant.size ??
+                    "",
+                  variant.color ??
+                    "",
+                  variant.category,
+                ]
+                  .join(
+                    " ",
+                  )
+                  .toLowerCase();
+
+              const matchesQuery =
+                !cleanQuery ||
+                searchable.includes(
+                  cleanQuery,
+                );
+
+              const state =
+                stockState(
+                  variant,
+                );
+
+              const matchesStock =
+                stockFilter ===
+                  "ALL" ||
+                state ===
+                  stockFilter;
+
+              const matchesCategory =
+                !selectedCategoryIds ||
+                variant.categoryIds.some(
+                  (
+                    id,
+                  ) =>
+                    selectedCategoryIds.has(
+                      id,
+                    ),
+                );
+
+              const matchesSubcategory =
+                !selectedSubcategoryIds ||
+                variant.categoryIds.some(
+                  (
+                    id,
+                  ) =>
+                    selectedSubcategoryIds.has(
+                      id,
+                    ),
+                );
+
+              return (
+                matchesQuery &&
+                matchesStock &&
+                matchesCategory &&
+                matchesSubcategory
+              );
+            },
+          );
+
+        return [
+          ...result,
+        ].sort(
+          (
+            first,
+            second,
+          ) => {
+            if (
+              sort ===
+              "STOCK_ASC"
+            ) {
+              return (
+                first.stock -
+                second.stock
+              );
+            }
+
+            if (
+              sort ===
+              "STOCK_DESC"
+            ) {
+              return (
+                second.stock -
+                first.stock
+              );
+            }
+
+            if (
+              sort ===
+              "SKU"
+            ) {
+              return first.sku.localeCompare(
+                second.sku,
+              );
+            }
+
+            return first.product.localeCompare(
+              second.product,
+            );
+          },
+        );
+      },
+
+      [
+        variants,
+        query,
+        stockFilter,
+        sort,
+        categoryFilter,
+        subcategoryFilter,
+        categories,
+      ],
+    );
+
+
+      const variantMap =
+    useMemo(
+      () =>
+        new Map(
+          variants.map(
+            (
+              variant,
+            ) => [
+              variant.id,
+              variant,
+            ],
+          ),
+        ),
+
+      [
+        variants,
+      ],
+    );
+
+  /* =======================================================
+     FILTERED HISTORY
+     ======================================================= */
+
+  const filteredHistory =
+    useMemo(
+      () => {
+        const cleanQuery =
+          query
+            .trim()
+            .toLowerCase();
+
+        const selectedCategoryIds =
+          categoryFilter ===
+          "ALL"
+            ? null
+            : categoryDescendantIds(
+                categoryFilter,
+              );
+
+        const selectedSubcategoryIds =
+          subcategoryFilter ===
+          "ALL"
+            ? null
+            : categoryDescendantIds(
+                subcategoryFilter,
+              );
+
+        return history.filter(
+          (
+            item,
+          ) => {
+            const matchesQuery =
+              !cleanQuery ||
+              [
+                item.product,
+                item.sku,
+                item.type,
+                item.reason,
+                item.reference ??
+                  "",
+                item.actor,
+              ]
+                .join(
+                  " ",
+                )
+                .toLowerCase()
+                .includes(
+                  cleanQuery,
+                );
+
+            const matchesType =
+              historyTypeFilter ===
+                "ALL" ||
+              item.type ===
+                historyTypeFilter;
+
+            const matchesMovement =
+              historyMovementFilter ===
+                "ALL" ||
+              (
+                historyMovementFilter ===
+                  "IN" &&
+                item.quantityChange >
+                  0
+              ) ||
+              (
+                historyMovementFilter ===
+                  "OUT" &&
+                item.quantityChange <
+                  0
+              );
+
+            const created =
+              new Date(
+                item.createdAt,
+              );
+
+            const matchesFrom =
+              !historyFrom ||
+              created >=
+                new Date(
+                  `${historyFrom}T00:00:00`,
+                );
+
+            const matchesTo =
+              !historyTo ||
+              created <=
+                new Date(
+                  `${historyTo}T23:59:59.999`,
+                );
+
+            const variant =
+              variantMap.get(
+                item.variantId,
+              );
+
+            const matchesCategory =
+              !selectedCategoryIds ||
+              Boolean(
+                variant?.categoryIds.some(
+                  (
+                    id,
+                  ) =>
+                    selectedCategoryIds.has(
+                      id,
+                    ),
+                ),
+              );
+
+            const matchesSubcategory =
+              !selectedSubcategoryIds ||
+              Boolean(
+                variant?.categoryIds.some(
+                  (
+                    id,
+                  ) =>
+                    selectedSubcategoryIds.has(
+                      id,
+                    ),
+                ),
+              );
+
+            return (
+              matchesQuery &&
+              matchesType &&
+              matchesMovement &&
+              matchesFrom &&
+              matchesTo &&
+              matchesCategory &&
+              matchesSubcategory
+            );
+          },
+        );
+      },
+
+      [
+        history,
+        query,
+        historyTypeFilter,
+        historyMovementFilter,
+        historyFrom,
+        historyTo,
+        categoryFilter,
+        subcategoryFilter,
+        categories,
+        variantMap,
+      ],
+    );
+
+
+  const historySummary =
+    useMemo(
+      () => {
+        const stockIn =
+          filteredHistory
+            .filter(
+              (
+                item,
+              ) =>
+                item.quantityChange >
+                0,
+            )
+            .reduce(
+              (
+                total,
+                item,
+              ) =>
+                total +
+                item.quantityChange,
+
+              0,
+            );
+
+        const stockOut =
+          Math.abs(
+            filteredHistory
+              .filter(
+                (
+                  item,
+                ) =>
+                  item.quantityChange <
+                  0,
+              )
+              .reduce(
+                (
+                  total,
+                  item,
+                ) =>
+                  total +
+                  item.quantityChange,
+
+                0,
+              ),
+          );
+
+        return {
+          stockIn,
+
+          stockOut,
+
+          net:
+            stockIn -
+            stockOut,
+
+          transactions:
+            filteredHistory.length,
+        };
+      },
+
+      [
+        filteredHistory,
+      ],
+    );
+
+  /* =======================================================
+     MUTATIONS
+     ======================================================= */
+
+  async function adjustStock(
+    variant:
+      InventoryVariant,
+
+    quantityChange:
+      number,
+
+    type:
+      AdjustmentType,
+
+    reason:
+      string,
+
+    reference:
+      string,
+  ) {
+    setBusy(
+      true,
+    );
+
+    setMessage("");
+    setError("");
+
+    try {
+      const response =
+        await fetch(
+          "/api/admin/inventory",
+          {
+            method:
+              "POST",
+
+            headers: {
+              "content-type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                variantId:
+                  variant.id,
+
+                quantityChange,
+
+                type,
+
+                reason,
+
+                reference:
+                  reference.trim(),
+              }),
+          },
+        );
+
+      const result =
+        await response
+          .json()
+          .catch(
+            () => ({
+              error:
+                "Request failed.",
+            }),
+          );
+
+      if (
+        !response.ok
+      ) {
+        throw new Error(
+          result.error ??
+            "Unable to adjust stock.",
+        );
+      }
+
+      setMessage(
+        result.message ??
+          "Stock adjusted.",
+      );
+
+      setSelected(
+        null,
+      );
+
+      router.refresh();
+
+      return true;
+    } catch (
+      caught
+    ) {
+      setError(
+        caught instanceof
+          Error
+          ? caught.message
+          : "Unable to adjust stock.",
+      );
+
+      return false;
+    } finally {
+      setBusy(
+        false,
+      );
+    }
+  }
+
+    async function bulkRestock(
+    adjustments:
+      {
+        variantId:
+          string;
+
+        quantityChange:
+          number;
+      }[],
+
+    reference:
+      string,
+
+    reason:
+      string,
+  ) {
+    setBusy(
+      true,
+    );
+
+    setMessage("");
+    setError("");
+
+    try {
+      const response =
+        await fetch(
+          "/api/admin/inventory",
+          {
+            method:
+              "POST",
+
+            headers: {
+              "content-type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                adjustments,
+
+                reference:
+                  reference.trim(),
+
+                reason:
+                  reason.trim(),
+              }),
+          },
+        );
+
+      const result =
+        await response
+          .json()
+          .catch(
+            () => ({
+              error:
+                "Request failed.",
+            }),
+          );
+
+      if (
+        !response.ok
+      ) {
+        throw new Error(
+          result.error ??
+            "Unable to complete bulk restock.",
+        );
+      }
+
+      setMessage(
+        result.message ??
+          "Bulk restock completed.",
+      );
+
+      setBulkRestockOpen(
+        false,
+      );
+
+      router.refresh();
+
+      return true;
+    } catch (
+      caught
+    ) {
+      setError(
+        caught instanceof
+          Error
+          ? caught.message
+          : "Unable to complete bulk restock.",
+      );
+
+      return false;
+    } finally {
+      setBusy(
+        false,
+      );
+    }
+  }
+
+
+
+  /* =======================================================
+     CATEGORY GROUPS
+     ======================================================= */
+
+  const categoryGroups =
+    useMemo(
+      () => {
+        type Group = {
+          id:
+            string;
+
+          name:
+            string;
+
+          sortOrder:
+            number;
+
+          variants:
+            InventoryVariant[];
+        };
+
+        const groups =
+          new Map<
+            string,
+            Group
+          >();
+
+        for (
+          const variant
+          of filteredVariants
+        ) {
+          const rootId =
+            rootCategoryIdFor(
+              variant.primaryCategoryId,
+            );
+
+          const root =
+            rootId
+              ? categoryMap.get(
+                  rootId,
+                )
+              : null;
+
+          const groupId =
+            root?.id ??
+            "__UNCATEGORIZED__";
+
+          const existing =
+            groups.get(
+              groupId,
+            );
+
+          if (
+            existing
+          ) {
+            existing.variants.push(
+              variant,
+            );
+
+            continue;
+          }
+
+          groups.set(
+            groupId,
+            {
+              id:
+                groupId,
+
+              name:
+                root?.name ??
+                "Uncategorized",
+
+              sortOrder:
+                root?.sortOrder ??
+                999999,
+
+              variants: [
+                variant,
+              ],
+            },
+          );
+        }
+
+        return Array.from(
+          groups.values(),
+        ).sort(
+          (
+            first,
+            second,
+          ) =>
+            first.sortOrder -
+              second.sortOrder ||
+            first.name.localeCompare(
+              second.name,
+            ),
+        );
+      },
+
+      [
+        filteredVariants,
+        categoryMap,
+      ],
+    );
+
+
+  async function updateVariant(
+    variant:
+      InventoryVariant,
+
+    changes:
+      {
+        lowStockThreshold?:
+          number;
+
+        active?:
+          boolean;
+      },
+  ) {
+    setBusy(
+      true,
+    );
+
+    setMessage("");
+    setError("");
+
+    try {
+      const response =
+        await fetch(
+          "/api/admin/inventory",
+          {
+            method:
+              "PATCH",
+
+            headers: {
+              "content-type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                id:
+                  variant.id,
+
+                ...changes,
+              }),
+          },
+        );
+
+      const result =
+        await response
+          .json()
+          .catch(
+            () => ({
+              error:
+                "Request failed.",
+            }),
+          );
+
+      if (
+        !response.ok
+      ) {
+        throw new Error(
+          result.error ??
+            "Unable to update inventory.",
+        );
+      }
+
+      setMessage(
+        result.message ??
+          "Inventory updated.",
+      );
+
+      router.refresh();
+
+      return true;
+    } catch (
+      caught
+    ) {
+      setError(
+        caught instanceof
+          Error
+          ? caught.message
+          : "Unable to update inventory.",
+      );
+
+      return false;
+    } finally {
+      setBusy(
+        false,
+      );
+    }
+  }
+
+    function productsFromVariants(
+    rows:
+      InventoryVariant[],
+  ) {
+    const groups =
+      new Map<
+        string,
+        {
+          productId:
+            string;
+
+          product:
+            string;
+
+          image:
+            string |
+            null;
+
+          imageAlt:
+            string;
+
+          variants:
+            InventoryVariant[];
+        }
+      >();
+
+    for (
+      const variant
+      of rows
+    ) {
+      const existing =
+        groups.get(
+          variant.productId,
+        );
+
+      if (
+        existing
+      ) {
+        existing.variants.push(
+          variant,
+        );
+
+        continue;
+      }
+
+      groups.set(
+        variant.productId,
+        {
+          productId:
+            variant.productId,
+
+          product:
+            variant.product,
+
+          image:
+            variant.image,
+
+          imageAlt:
+            variant.imageAlt,
+
+          variants: [
+            variant,
+          ],
+        },
+      );
+    }
+
+    return Array.from(
+      groups.values(),
+    ).sort(
+      (
+        first,
+        second,
+      ) =>
+        first.product.localeCompare(
+          second.product,
+        ),
+    );
+  }
+
+
+
+  /* =======================================================
+     EXPORTS
+     ======================================================= */
+
+  function downloadRestockTemplate() {
+    downloadCsv(
+      `game-on-garb-restock-template-${new Date()
+        .toISOString()
+        .slice(
+          0,
+          10,
+        )}.csv`,
+
+      [
+        [
+          "SKU",
+          "Product",
+          "Category",
+          "Size",
+          "Color",
+          "Current Stock",
+          "Add Quantity",
+        ],
+
+        ...filteredVariants.map(
+          (
+            variant,
+          ) => [
+            variant.sku,
+            variant.product,
+            variant.category,
+            variant.size ??
+              "",
+            variant.color ??
+              "",
+            variant.stock,
+            "",
+          ],
+        ),
+      ],
+    );
+  }
+
+  function downloadInventory() {
+    downloadCsv(
+      `game-on-garb-inventory-${new Date()
+        .toISOString()
+        .slice(
+          0,
+          10,
+        )}.csv`,
+
+      [
+        [
+          "Product",
+          "Category",
+          "SKU",
+          "Size",
+          "Color",
+          "Stock",
+          "Low Stock Threshold",
+          "Stock Status",
+          "Variant Active",
+          "Product Status",
+        ],
+
+        ...filteredVariants.map(
+          (
+            variant,
+          ) => [
+            variant.product,
+            variant.category,
+            variant.sku,
+            variant.size ??
+              "",
+            variant.color ??
+              "",
+            variant.stock,
+            variant.lowStockThreshold,
+            stockLabel(
+              stockState(
+                variant,
+              ),
+            ),
+            variant.active
+              ? "Yes"
+              : "No",
+            variant.productStatus,
+          ],
+        ),
+      ],
+    );
+  }
+
+  function downloadHistory() {
+    downloadCsv(
+      `game-on-garb-inventory-history-${new Date()
+        .toISOString()
+        .slice(
+          0,
+          10,
+        )}.csv`,
+
+      [
+        [
+          "Date",
+          "Product",
+          "SKU",
+          "Size",
+          "Color",
+          "Type",
+          "Change",
+          "Before",
+          "After",
+          "Reference",
+          "Reason",
+          "Actor",
+        ],
+
+        ...filteredHistory.map(
+          (
+            item,
+          ) => [
+            formatDateTime(
+              item.createdAt,
+            ),
+            item.product,
+            item.sku,
+            item.size ??
+              "",
+            item.color ??
+              "",
+            formatType(
+              item.type,
+            ),
+            item.quantityChange,
+            item.beforeQuantity,
+            item.afterQuantity,
+            item.reference ??
+              "",
+            item.reason,
+            item.actor,
+          ],
+        ),
+      ],
+    );
+  }
+
+  function resetFilters() {
+    setQuery("");
+
+    setCategoryFilter(
+      "ALL",
+    );
+
+    setSubcategoryFilter(
+      "ALL",
+    );
+
+    setStockFilter(
+      "ALL",
+    );
+
+    setSort(
+      "PRODUCT",
+    );
+
+    setHistoryTypeFilter(
+      "ALL",
+    );
+
+    setHistoryMovementFilter(
+      "ALL",
+    );
+
+    setHistoryFrom("");
+
+    setHistoryTo("");
+  }
+
+  const filtersActive =
+    Boolean(
+      query,
+    ) ||
+    categoryFilter !==
+      "ALL" ||
+    subcategoryFilter !==
+      "ALL" ||
+    stockFilter !==
+      "ALL" ||
+    sort !==
+      "PRODUCT" ||
+    historyTypeFilter !==
+      "ALL" ||
+    historyMovementFilter !==
+      "ALL" ||
+    Boolean(
+      historyFrom,
+    ) ||
+    Boolean(
+      historyTo,
+    );
+
+  return (
+    <div
+      className={
+        styles.page
+      }
+    >
+      {/* ===================================================
+          HEADER
+          =================================================== */}
+
+      <header
+        className={
+          styles.header
+        }
+      >
+        <div>
+          <span
+            className={
+              styles.eyebrow
+            }
+          >
+            Stock Control
+          </span>
+
+          <h1>
+            Inventory
+          </h1>
+
+          <p>
+            Track every product
+            variant, identify
+            stock risks and
+            maintain a complete
+            adjustment history.
+          </p>
+        </div>
+
+        <div
+          className={
+            styles.headerActions
+          }
+        >
+
+                    {view ===
+          "STOCK" ? (
+            <button
+              type="button"
+              className={
+                styles.bulkButton
+              }
+              onClick={() =>
+                setBulkRestockOpen(
+                  true,
+                )
+              }
+            >
+              <Plus
+                size={
+                  15
+                }
+              />
+
+              Bulk Restock
+            </button>
+          ) : null}
+
+
+          <button
+            type="button"
+            className={
+              styles.downloadButton
+            }
+            onClick={
+              view ===
+              "STOCK"
+                ? downloadInventory
+                : downloadHistory
+            }
+          >
+            <Download
+              size={
+                15
+              }
+            />
+
+            {view ===
+            "STOCK"
+              ? "Download Inventory"
+              : "Download History"}
+          </button>
+        </div>
+      </header>
+
+      {message ? (
+        <div
+          className={
+            styles.success
+          }
+        >
+          <CheckCircle2
+            size={
+              15
+            }
+          />
+
+          {
+            message
+          }
+        </div>
+      ) : null}
+
+      {error ? (
+        <div
+          className={
+            styles.error
+          }
+        >
+          <AlertTriangle
+            size={
+              15
+            }
+          />
+
+          {
+            error
+          }
+        </div>
+      ) : null}
+
+      {/* ===================================================
+          KPI CARDS
+          =================================================== */}
+
+      <section
+        className={
+          styles.kpiGrid
+        }
+      >
+        <article
+          className={
+            styles.kpiCard
+          }
+        >
+          <span
+            className={
+              styles.kpiIcon
+            }
+          >
+            <Boxes
+              size={
+                18
+              }
+            />
+          </span>
+
+          <div>
+            <span>
+              Total Variants
+            </span>
+
+            <strong>
+              {
+                stats.variants
+              }
+            </strong>
+
+            <small>
+              {
+                stats.active
+              }{" "}
+              active
+            </small>
+          </div>
+        </article>
+
+        <article
+          className={
+            styles.kpiCard
+          }
+        >
+          <span
+            className={
+              styles.kpiIcon
+            }
+          >
+            <Warehouse
+              size={
+                18
+              }
+            />
+          </span>
+
+          <div>
+            <span>
+              Units in Stock
+            </span>
+
+            <strong>
+              {
+                stats.totalUnits
+              }
+            </strong>
+
+            <small>
+              Across active
+              variants
+            </small>
+          </div>
+        </article>
+
+        <article
+          className={
+            styles.kpiCard
+          }
+        >
+          <span
+            className={`${styles.kpiIcon} ${styles.warningIcon}`}
+          >
+            <AlertTriangle
+              size={
+                18
+              }
+            />
+          </span>
+
+          <div>
+            <span>
+              Low Stock
+            </span>
+
+            <strong>
+              {
+                stats.low
+              }
+            </strong>
+
+            <small>
+              Needs attention
+            </small>
+          </div>
+        </article>
+
+        <article
+          className={
+            styles.kpiCard
+          }
+        >
+          <span
+            className={`${styles.kpiIcon} ${styles.dangerIcon}`}
+          >
+            <PackageX
+              size={
+                18
+              }
+            />
+          </span>
+
+          <div>
+            <span>
+              Out of Stock
+            </span>
+
+            <strong>
+              {
+                stats.out
+              }
+            </strong>
+
+            <small>
+              Cannot be sold
+            </small>
+          </div>
+        </article>
+      </section>
+
+      {/* ===================================================
+          VIEW TABS
+          =================================================== */}
+
+      <section
+        className={
+          styles.controlCard
+        }
+      >
+        <div
+          className={
+            styles.tabs
+          }
+        >
+          <button
+            type="button"
+            className={
+              view ===
+              "STOCK"
+                ? styles.tabActive
+                : ""
+            }
+            onClick={() =>
+              setView(
+                "STOCK",
+              )
+            }
+          >
+            <Package
+              size={
+                14
+              }
+            />
+
+            Current Stock
+
+            <span>
+              {
+                variants.length
+              }
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className={
+              view ===
+              "HISTORY"
+                ? styles.tabActive
+                : ""
+            }
+            onClick={() =>
+              setView(
+                "HISTORY",
+              )
+            }
+          >
+            <FileClock
+              size={
+                14
+              }
+            />
+
+            Transactions
+
+            <span>
+              {
+                history.length
+              }
+            </span>
+          </button>
+        </div>
+
+        <div
+          className={
+            styles.toolbar
+          }
+        >
+          <label
+            className={
+              styles.searchBox
+            }
+          >
+            <Search
+              size={
+                15
+              }
+            />
+
+            <input
+              value={
+                query
+              }
+              onChange={(
+                event,
+              ) =>
+                setQuery(
+                  event.target
+                    .value,
+                )
+              }
+              placeholder={
+                view ===
+                "STOCK"
+                  ? "Search product, SKU, size, color or category..."
+                  : "Search transaction history..."
+              }
+            />
+
+            {query ? (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() =>
+                  setQuery("")
+                }
+              >
+                <X
+                  size={
+                    13
+                  }
+                />
+              </button>
+            ) : null}
+          </label>
+
+          {view ===
+          "STOCK" ? (
+            <>
+              <select
+                value={
+                  categoryFilter
+                }
+                onChange={(
+                  event,
+                ) => {
+                  setCategoryFilter(
+                    event.target
+                      .value,
+                  );
+
+                  setSubcategoryFilter(
+                    "ALL",
+                  );
+                }}
+              >
+                <option value="ALL">
+                  All categories
+                </option>
+
+                {rootCategories.map(
+                  (
+                    category,
+                  ) => (
+                    <option
+                      key={
+                        category.id
+                      }
+                      value={
+                        category.id
+                      }
+                    >
+                      {
+                        category.name
+                      }
+                    </option>
+                  ),
+                )}
+              </select>
+
+              <select
+                value={
+                  subcategoryFilter
+                }
+                disabled={
+                  categoryFilter ===
+                    "ALL" ||
+                  availableSubcategories.length ===
+                    0
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setSubcategoryFilter(
+                    event.target
+                      .value,
+                  )
+                }
+              >
+                <option value="ALL">
+                  {categoryFilter ===
+                  "ALL"
+                    ? "Select category first"
+                    : availableSubcategories.length ===
+                        0
+                      ? "No subcategories"
+                      : "All subcategories"}
+                </option>
+
+                {availableSubcategories.map(
+                  (
+                    category,
+                  ) => (
+                    <option
+                      key={
+                        category.id
+                      }
+                      value={
+                        category.id
+                      }
+                    >
+                      {
+                        category.name
+                      }
+                    </option>
+                  ),
+                )}
+              </select>
+
+              <select
+                value={
+                  stockFilter
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setStockFilter(
+                    event.target
+                      .value as StockFilter,
+                  )
+                }
+              >
+                <option value="ALL">
+                  All stock
+                </option>
+
+                <option value="IN_STOCK">
+                  In stock
+                </option>
+
+                <option value="LOW">
+                  Low stock
+                </option>
+
+                <option value="OUT">
+                  Out of stock
+                </option>
+
+                <option value="INACTIVE">
+                  Inactive
+                </option>
+              </select>
+
+              <label
+                className={
+                  styles.sortControl
+                }
+              >
+                <ArrowDownUp
+                  size={
+                    14
+                  }
+                />
+
+                <select
+                  value={
+                    sort
+                  }
+                  onChange={(
+                    event,
+                  ) =>
+                    setSort(
+                      event.target
+                        .value as SortOption,
+                    )
+                  }
+                >
+                  <option value="PRODUCT">
+                    Product
+                  </option>
+
+                  <option value="STOCK_ASC">
+                    Lowest stock
+                  </option>
+
+                  <option value="STOCK_DESC">
+                    Highest stock
+                  </option>
+
+                  <option value="SKU">
+                    SKU
+                  </option>
+                </select>
+              </label>
+            </>
+          ) : null}
+
+                    {view ===
+          "HISTORY" ? (
+            <>
+              <select
+                value={
+                  categoryFilter
+                }
+                onChange={(
+                  event,
+                ) => {
+                  setCategoryFilter(
+                    event.target
+                      .value,
+                  );
+
+                  setSubcategoryFilter(
+                    "ALL",
+                  );
+                }}
+              >
+                <option value="ALL">
+                  All categories
+                </option>
+
+                {rootCategories.map(
+                  (
+                    category,
+                  ) => (
+                    <option
+                      key={
+                        category.id
+                      }
+                      value={
+                        category.id
+                      }
+                    >
+                      {
+                        category.name
+                      }
+                    </option>
+                  ),
+                )}
+              </select>
+
+              <select
+                value={
+                  subcategoryFilter
+                }
+                disabled={
+                  categoryFilter ===
+                    "ALL" ||
+                  availableSubcategories.length ===
+                    0
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setSubcategoryFilter(
+                    event.target
+                      .value,
+                  )
+                }
+              >
+                <option value="ALL">
+                  All subcategories
+                </option>
+
+                {availableSubcategories.map(
+                  (
+                    category,
+                  ) => (
+                    <option
+                      key={
+                        category.id
+                      }
+                      value={
+                        category.id
+                      }
+                    >
+                      {
+                        category.name
+                      }
+                    </option>
+                  ),
+                )}
+              </select>
+
+              <select
+                value={
+                  historyTypeFilter
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setHistoryTypeFilter(
+                    event.target
+                      .value,
+                  )
+                }
+              >
+                <option value="ALL">
+                  All types
+                </option>
+
+                <option value="PURCHASE">
+                  Purchase
+                </option>
+
+                <option value="SALE">
+                  Sale
+                </option>
+
+                <option value="RETURN">
+                  Return
+                </option>
+
+                <option value="DAMAGE">
+                  Damage
+                </option>
+
+                <option value="MANUAL_ADJUSTMENT">
+                  Manual Adjustment
+                </option>
+
+                <option value="CORRECTION">
+                  Correction
+                </option>
+
+                <option value="CANCELLATION_RESTORE">
+                  Cancellation Restore
+                </option>
+              </select>
+
+              <select
+                value={
+                  historyMovementFilter
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setHistoryMovementFilter(
+                    event.target
+                      .value as HistoryMovementFilter,
+                  )
+                }
+              >
+                <option value="ALL">
+                  All movements
+                </option>
+
+                <option value="IN">
+                  Stock In
+                </option>
+
+                <option value="OUT">
+                  Stock Out
+                </option>
+              </select>
+
+              <input
+                type="date"
+                value={
+                  historyFrom
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setHistoryFrom(
+                    event.target
+                      .value,
+                  )
+                }
+                aria-label="History from date"
+              />
+
+              <input
+                type="date"
+                value={
+                  historyTo
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setHistoryTo(
+                    event.target
+                      .value,
+                  )
+                }
+                aria-label="History to date"
+              />
+            </>
+          ) : null}
+
+          {filtersActive ? (
+            <button
+              type="button"
+              className={
+                styles.resetButton
+              }
+              onClick={
+                resetFilters
+              }
+            >
+              Reset
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      {/* ===================================================
+          CATEGORY INVENTORY
+          =================================================== */}
+
+      {view ===
+      "STOCK" ? (
+        <section
+          className={
+            styles.categoryInventory
+          }
+        >
+          <div
+            className={
+              styles.tableHeading
+            }
+          >
+            <div>
+              <strong>
+                Inventory by Category
+              </strong>
+
+              <span>
+                {
+                  filteredVariants.length
+                }{" "}
+                variants across{" "}
+                {
+                  categoryGroups.length
+                }{" "}
+                categories
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={
+                downloadInventory
+              }
+            >
+              <Download
+                size={
+                  14
+                }
+              />
+
+              Export CSV
+            </button>
+          </div>
+
+          {categoryGroups.length >
+          0 ? (
+            <div
+              className={
+                styles.categoryList
+              }
+            >
+              {categoryGroups.map(
+                (
+                  category,
+                ) => {
+                  const totalUnits =
+                    category.variants.reduce(
+                      (
+                        total,
+                        variant,
+                      ) =>
+                        total +
+                        variant.stock,
+
+                      0,
+                    );
+
+                  const lowCount =
+                    category.variants.filter(
+                      (
+                        variant,
+                      ) =>
+                        stockState(
+                          variant,
+                        ) ===
+                        "LOW",
+                    ).length;
+
+                  const outCount =
+                    category.variants.filter(
+                      (
+                        variant,
+                      ) =>
+                        stockState(
+                          variant,
+                        ) ===
+                        "OUT",
+                    ).length;
+
+                  const products =
+                    productsFromVariants(
+                      category.variants,
+                    );
+
+                  return (
+                    <details
+                      key={
+                        category.id
+                      }
+                      className={
+                        styles.categoryGroup
+                      }
+                      open={
+                        Boolean(
+                          query,
+                        ) ||
+                        categoryFilter !==
+                          "ALL" ||
+                        stockFilter !==
+                          "ALL"
+                      }
+                    >
+                      <summary
+                        className={
+                          styles.categorySummary
+                        }
+                      >
+                        <div
+                          className={
+                            styles.categorySummaryMain
+                          }
+                        >
+                          <ChevronRight
+                            size={
+                              18
+                            }
+                          />
+
+                          <div>
+                            <strong>
+                              {
+                                category.name
+                              }
+                            </strong>
+
+                            <span>
+                              {
+                                products.length
+                              }{" "}
+                              product
+                              {products.length ===
+                              1
+                                ? ""
+                                : "s"}{" "}
+                              ·{" "}
+                              {
+                                category.variants
+                                  .length
+                              }{" "}
+                              variants ·{" "}
+                              {
+                                totalUnits
+                              }{" "}
+                              units
+                            </span>
+                          </div>
+                        </div>
+
+                        <div
+                          className={
+                            styles.categoryBadges
+                          }
+                        >
+                          {lowCount >
+                          0 ? (
+                            <span
+                              className={`${styles.statusBadge} ${styles.statusLow}`}
+                            >
+                              {
+                                lowCount
+                              }{" "}
+                              Low
+                            </span>
+                          ) : null}
+
+                          {outCount >
+                          0 ? (
+                            <span
+                              className={`${styles.statusBadge} ${styles.statusOut}`}
+                            >
+                              {
+                                outCount
+                              }{" "}
+                              Out
+                            </span>
+                          ) : null}
+
+                          {lowCount ===
+                            0 &&
+                          outCount ===
+                            0 ? (
+                            <span
+                              className={`${styles.statusBadge} ${styles.statusGood}`}
+                            >
+                              Healthy
+                            </span>
+                          ) : null}
+                        </div>
+                      </summary>
+
+                      <div
+                        className={
+                          styles.productGroupList
+                        }
+                      >
+                        {products.map(
+                          (
+                            product,
+                          ) => {
+                            const productUnits =
+                              product.variants.reduce(
+                                (
+                                  total,
+                                  variant,
+                                ) =>
+                                  total +
+                                  variant.stock,
+
+                                0,
+                              );
+
+                            return (
+                              <details
+                                key={
+                                  product.productId
+                                }
+                                className={
+                                  styles.productGroup
+                                }
+                              >
+                                <summary
+                                  className={
+                                    styles.productSummary
+                                  }
+                                >
+                                  <div
+                                    className={
+                                      styles.productCell
+                                    }
+                                  >
+                                    <div
+                                      className={
+                                        styles.productImage
+                                      }
+                                    >
+                                      {product.image ? (
+                                        <Image
+                                          src={
+                                            product.image
+                                          }
+                                          alt={
+                                            product.imageAlt
+                                          }
+                                          fill
+                                          sizes="46px"
+                                        />
+                                      ) : (
+                                        <Package
+                                          size={
+                                            18
+                                          }
+                                        />
+                                      )}
+                                    </div>
+
+                                    <div>
+                                      <strong>
+                                        {
+                                          product.product
+                                        }
+                                      </strong>
+
+                                      <span>
+                                        {
+                                          product.variants
+                                            .length
+                                        }{" "}
+                                        variants ·{" "}
+                                        {
+                                          productUnits
+                                        }{" "}
+                                        units
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <ChevronRight
+                                    size={
+                                      17
+                                    }
+                                  />
+                                </summary>
+
+                                <div
+                                  className={
+                                    styles.tableWrap
+                                  }
+                                >
+                                  <table
+                                    className={
+                                      styles.table
+                                    }
+                                  >
+                                    <thead>
+                                      <tr>
+                                        <th>
+                                          SKU
+                                        </th>
+
+                                        <th>
+                                          Color
+                                        </th>
+
+                                        <th>
+                                          Size
+                                        </th>
+
+                                        <th>
+                                          Stock
+                                        </th>
+
+                                        <th>
+                                          Threshold
+                                        </th>
+
+                                        <th>
+                                          Status
+                                        </th>
+
+                                        <th>
+                                          Action
+                                        </th>
+                                      </tr>
+                                    </thead>
+
+                                    <tbody>
+                                      {product.variants.map(
+                                        (
+                                          variant,
+                                        ) => {
+                                          const state =
+                                            stockState(
+                                              variant,
+                                            );
+
+                                          return (
+                                            <tr
+                                              key={
+                                                variant.id
+                                              }
+                                            >
+                                              <td>
+                                                <code
+                                                  className={
+                                                    styles.sku
+                                                  }
+                                                >
+                                                  {
+                                                    variant.sku
+                                                  }
+                                                </code>
+                                              </td>
+
+                                              <td>
+                                                <div
+                                                  className={
+                                                    styles.variantCell
+                                                  }
+                                                >
+                                                  {variant.color ? (
+                                                    <span>
+                                                      {variant.colorHex ? (
+                                                        <i
+                                                          style={{
+                                                            background:
+                                                              variant.colorHex,
+                                                          }}
+                                                        />
+                                                      ) : null}
+
+                                                      {
+                                                        variant.color
+                                                      }
+                                                    </span>
+                                                  ) : (
+                                                    "—"
+                                                  )}
+                                                </div>
+                                              </td>
+
+                                              <td>
+                                                {
+                                                  variant.size ??
+                                                  "—"
+                                                }
+                                              </td>
+
+                                              <td>
+                                                <strong
+                                                  className={`${styles.stockNumber} ${
+                                                    state ===
+                                                    "OUT"
+                                                      ? styles.stockDanger
+                                                      : state ===
+                                                          "LOW"
+                                                        ? styles.stockWarning
+                                                        : ""
+                                                  }`}
+                                                >
+                                                  {
+                                                    variant.stock
+                                                  }
+                                                </strong>
+                                              </td>
+
+                                              <td>
+                                                <span
+                                                  className={
+                                                    styles.threshold
+                                                  }
+                                                >
+                                                  {
+                                                    variant.lowStockThreshold
+                                                  }
+                                                </span>
+                                              </td>
+
+                                              <td>
+                                                <span
+                                                  className={`${styles.statusBadge} ${
+                                                    state ===
+                                                    "IN_STOCK"
+                                                      ? styles.statusGood
+                                                      : state ===
+                                                          "LOW"
+                                                        ? styles.statusLow
+                                                        : state ===
+                                                            "OUT"
+                                                          ? styles.statusOut
+                                                          : styles.statusInactive
+                                                  }`}
+                                                >
+                                                  {stockLabel(
+                                                    state,
+                                                  )}
+                                                </span>
+                                              </td>
+
+                                              <td>
+                                                <button
+                                                  type="button"
+                                                  className={
+                                                    styles.adjustButton
+                                                  }
+                                                  onClick={() =>
+                                                    setSelected(
+                                                      variant,
+                                                    )
+                                                  }
+                                                >
+                                                  <SlidersHorizontal
+                                                    size={
+                                                      14
+                                                    }
+                                                  />
+
+                                                  Adjust
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          );
+                                        },
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </details>
+                            );
+                          },
+                        )}
+                      </div>
+                    </details>
+                  );
+                },
+              )}
+            </div>
+          ) : (
+            <EmptyState
+              reset={
+                filtersActive
+                  ? resetFilters
+                  : undefined
+              }
+            />
+          )}
+        </section>
+      ) : (
+        /* =================================================
+           HISTORY
+           ================================================= */
+
+        <>
+          <section
+            className={
+              styles.historySummary
+            }
+          >
+            <div>
+              <span>
+                Stock In
+              </span>
+
+              <strong>
+                +
+                {
+                  historySummary.stockIn
+                }
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Stock Out
+              </span>
+
+              <strong>
+                -
+                {
+                  historySummary.stockOut
+                }
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Net Movement
+              </span>
+
+              <strong>
+                {historySummary.net >
+                0
+                  ? "+"
+                  : ""}
+                {
+                  historySummary.net
+                }
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Transactions
+              </span>
+
+              <strong>
+                {
+                  historySummary.transactions
+                }
+              </strong>
+            </div>
+          </section>
+
+          <section
+            className={
+              styles.tableCard
+            }
+          >
+          <div
+            className={
+              styles.tableHeading
+            }
+          >
+            <div>
+              <strong>
+                Inventory Transactions
+              </strong>
+
+              <span>
+                {
+                  filteredHistory.length
+                }{" "}
+                records shown
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={
+                downloadHistory
+              }
+            >
+              <Download
+                size={
+                  14
+                }
+              />
+
+              Export CSV
+            </button>
+          </div>
+
+          {filteredHistory.length >
+          0 ? (
+            <div
+              className={
+                styles.tableWrap
+              }
+            >
+              <table
+                className={`${styles.table} ${styles.historyTable}`}
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      Date
+                    </th>
+
+                    <th>
+                      Product
+                    </th>
+
+                    <th>
+                      Type
+                    </th>
+
+                    <th>
+                      Change
+                    </th>
+
+                    <th>
+                      Stock
+                    </th>
+
+                    <th>
+                      Reason
+                    </th>
+
+                    <th>
+                      Actor
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredHistory.map(
+                    (
+                      item,
+                    ) => (
+                      <tr
+                        key={
+                          item.id
+                        }
+                      >
+                        <td>
+                          <span
+                            className={
+                              styles.date
+                            }
+                          >
+                            {formatDateTime(
+                              item.createdAt,
+                            )}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div
+                            className={
+                              styles.historyProduct
+                            }
+                          >
+                            <strong>
+                              {
+                                item.product
+                              }
+                            </strong>
+
+                            <span>
+                              {
+                                item.sku
+                              }
+
+                              {item.color
+                                ? ` · ${item.color}`
+                                : ""}
+
+                              {item.size
+                                ? ` · ${item.size}`
+                                : ""}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              styles.typeBadge
+                            }
+                          >
+                            {formatType(
+                              item.type,
+                            )}
+                          </span>
+                        </td>
+
+                        <td>
+                          <strong
+                            className={
+                              item.quantityChange >
+                              0
+                                ? styles.positive
+                                : styles.negative
+                            }
+                          >
+                            {item.quantityChange >
+                            0
+                              ? "+"
+                              : ""}
+                            {
+                              item.quantityChange
+                            }
+                          </strong>
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              styles.beforeAfter
+                            }
+                          >
+                            {
+                              item.beforeQuantity
+                            }
+
+                            <ChevronRight
+                              size={
+                                12
+                              }
+                            />
+
+                            <strong>
+                              {
+                                item.afterQuantity
+                              }
+                            </strong>
+                          </span>
+                        </td>
+
+                        <td>
+                          <div
+                            className={
+                              styles.reasonCell
+                            }
+                          >
+                            <strong>
+                              {
+                                item.reason
+                              }
+                            </strong>
+
+                            {item.reference ? (
+                              <span>
+                                Ref:{" "}
+                                {
+                                  item.reference
+                                }
+                              </span>
+                            ) : null}
+                          </div>
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              styles.actor
+                            }
+                          >
+                            {
+                              item.actor
+                            }
+                          </span>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <EmptyState />
+          )}
+        </section>
+        </>
+      )}
+
+            {bulkRestockOpen ? (
+        <BulkRestockDrawer
+          variants={
+            filteredVariants
+          }
+
+          downloadTemplate={
+            downloadRestockTemplate
+          }
+          busy={
+            busy
+          }
+          close={() =>
+            setBulkRestockOpen(
+              false,
+            )
+          }
+          submit={
+            bulkRestock
+          }
+        />
+      ) : null}
+
+      {selected ? (
+        <AdjustmentDrawer
+          variant={
+            selected
+          }
+          busy={
+            busy
+          }
+          close={() =>
+            setSelected(
+              null,
+            )
+          }
+          adjustStock={
+            adjustStock
+          }
+          updateVariant={
+            updateVariant
+          }
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function BulkRestockDrawer({
+  variants,
+  busy,
+  close,
+  submit,
+  downloadTemplate,
+}: {
+  variants:
+    InventoryVariant[];
+
+  busy:
+    boolean;
+
+      downloadTemplate:
+    () => void;
+
+  close:
+    () => void;
+
+  submit:
+    (
+      adjustments:
+        {
+          variantId:
+            string;
+
+          quantityChange:
+            number;
+        }[],
+
+      reference:
+        string,
+
+      reason:
+        string,
+    ) =>
+      Promise<boolean>;
+}) {
+  const [
+    search,
+    setSearch,
+  ] =
+    useState("");
+
+  const [
+    reference,
+    setReference,
+  ] =
+    useState("");
+
+  const [
+    reason,
+    setReason,
+  ] =
+    useState("");
+
+      const [
+    csvImport,
+    setCsvImport,
+  ] =
+    useState<CsvImportState | null>(
+      null,
+    );
+
+  const [
+    quantities,
+    setQuantities,
+  ] =
+    useState<
+      Record<
+        string,
+        number
+      >
+    >({});
+
+      const variantBySku =
+    useMemo(
+      () =>
+        new Map(
+          variants.map(
+            (
+              variant,
+            ) => [
+              variant.sku
+                .trim()
+                .toLowerCase(),
+              variant,
+            ],
+          ),
+        ),
+
+      [
+        variants,
+      ],
+    );
+
+  const visibleVariants =
+    useMemo(
+      () => {
+        const clean =
+          search
+            .trim()
+            .toLowerCase();
+
+        if (
+          !clean
+        ) {
+          return variants;
+        }
+
+        return variants.filter(
+          (
+            variant,
+          ) =>
+            [
+              variant.product,
+              variant.sku,
+              variant.size ??
+                "",
+              variant.color ??
+                "",
+              variant.category,
+            ]
+              .join(
+                " ",
+              )
+              .toLowerCase()
+              .includes(
+                clean,
+              ),
+        );
+      },
+
+      [
+        variants,
+        search,
+      ],
+    );
+
+  const adjustments =
+    Object.entries(
+      quantities,
+    )
+      .filter(
+        (
+          [
+            ,
+            quantity,
+          ],
+        ) =>
+          quantity >
+          0,
+      )
+      .map(
+        (
+          [
+            variantId,
+            quantityChange,
+          ],
+        ) => ({
+          variantId,
+          quantityChange,
+        }),
+      );
+
+  const totalUnits =
+    adjustments.reduce(
+      (
+        total,
+        adjustment,
+      ) =>
+        total +
+        adjustment.quantityChange,
+
+      0,
+    );
+
+      const csvErrors =
+    csvImport?.rows.filter(
+      (
+        row,
+      ) =>
+        Boolean(
+          row.error,
+        ),
+    ) ??
+    [];
+
+  const csvValidRows =
+    csvImport?.rows.filter(
+      (
+        row,
+      ) =>
+        !row.error &&
+        row.variant &&
+        row.quantity >
+          0,
+    ) ??
+    [];
+
+      async function handleCsvFile(
+    file:
+      File,
+  ) {
+    const text =
+      await file.text();
+
+    const lines =
+      text
+        .replace(
+          /^\uFEFF/,
+          "",
+        )
+        .split(
+          /\r?\n/,
+        )
+        .filter(
+          (
+            line,
+          ) =>
+            line.trim().length >
+            0,
+        );
+
+    if (
+      lines.length <
+      2
+    ) {
+      setCsvImport({
+        filename:
+          file.name,
+
+        rows: [
+          {
+            sku:
+              "",
+
+            quantity:
+              0,
+
+            variant:
+              null,
+
+            error:
+              "The CSV has no inventory rows.",
+          },
+        ],
+      });
+
+      return;
+    }
+
+    const headers =
+      parseCsvLine(
+        lines[0],
+      ).map(
+        (
+          value,
+        ) =>
+          value
+            .trim()
+            .toLowerCase(),
+      );
+
+    const skuIndex =
+      headers.indexOf(
+        "sku",
+      );
+
+    const quantityIndex =
+      headers.indexOf(
+        "add quantity",
+      );
+
+    if (
+      skuIndex ===
+        -1 ||
+      quantityIndex ===
+        -1
+    ) {
+      setCsvImport({
+        filename:
+          file.name,
+
+        rows: [
+          {
+            sku:
+              "",
+
+            quantity:
+              0,
+
+            variant:
+              null,
+
+            error:
+              "CSV must contain SKU and Add Quantity columns.",
+          },
+        ],
+      });
+
+      return;
+    }
+
+    const seen =
+      new Set<
+        string
+      >();
+
+    const parsedRows =
+      lines
+        .slice(
+          1,
+        )
+        .map(
+          (
+            line,
+          ) => {
+            const cells =
+              parseCsvLine(
+                line,
+              );
+
+            const sku =
+              (
+                cells[
+                  skuIndex
+                ] ??
+                ""
+              ).trim();
+
+            const rawQuantity =
+              (
+                cells[
+                  quantityIndex
+                ] ??
+                ""
+              ).trim();
+
+            const quantity =
+              Number(
+                rawQuantity,
+              );
+
+            const normalizedSku =
+              sku.toLowerCase();
+
+            const variant =
+              variantBySku.get(
+                normalizedSku,
+              ) ??
+              null;
+
+            let error:
+              string |
+              null =
+              null;
+
+            if (
+              !sku
+            ) {
+              error =
+                "SKU is required.";
+            } else if (
+              !rawQuantity
+            ) {
+              return {
+                sku,
+                quantity:
+                  0,
+                variant,
+                error:
+                  null,
+              };
+            } else if (
+              !Number.isInteger(
+                quantity,
+              ) ||
+              quantity <
+                0
+            ) {
+              error =
+                "Add Quantity must be a whole number of 0 or more.";
+            } else if (
+              !variant
+            ) {
+              error =
+                "SKU was not found.";
+            } else if (
+              seen.has(
+                normalizedSku,
+              )
+            ) {
+              error =
+                "Duplicate SKU in CSV.";
+            }
+
+            seen.add(
+              normalizedSku,
+            );
+
+            return {
+              sku,
+              quantity,
+              variant,
+              error,
+            };
+          },
+        )
+        .filter(
+          (
+            row,
+          ) =>
+            row.quantity >
+              0 ||
+            Boolean(
+              row.error,
+            ),
+        );
+
+    setCsvImport({
+      filename:
+        file.name,
+
+      rows:
+        parsedRows,
+    });
+
+    const importedQuantities:
+      Record<
+        string,
+        number
+      > =
+      {};
+
+    for (
+      const row
+      of parsedRows
+    ) {
+      if (
+        !row.error &&
+        row.variant &&
+        row.quantity >
+          0
+      ) {
+        importedQuantities[
+          row.variant.id
+        ] =
+          row.quantity;
+      }
+    }
+
+    setQuantities(
+      importedQuantities,
+    );
+  }
+
+  async function handleSubmit(
+    event:
+      React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    if (
+      adjustments.length ===
+        0 ||
+      reason.trim().length <
+        3
+    ) {
+      return;
+    }
+
+    await submit(
+      adjustments,
+      reference,
+      reason,
+    );
+  }
+
+  return (
+    <div
+      className={
+        styles.drawerBackdrop
+      }
+      onMouseDown={(
+        event,
+      ) => {
+        if (
+          event.target ===
+          event.currentTarget
+        ) {
+          close();
+        }
+      }}
+    >
+      <aside
+        className={`${styles.drawer} ${styles.bulkDrawer}`}
+      >
+        <header
+          className={
+            styles.drawerHeader
+          }
+        >
+          <div>
+            <span>
+              Warehouse Restock
+            </span>
+
+            <h2>
+              Bulk Restock
+            </h2>
+
+            <small>
+              Add stock to multiple SKUs in one transaction.
+            </small>
+          </div>
+
+          <button
+            type="button"
+            onClick={
+              close
+            }
+            aria-label="Close"
+          >
+            <X
+              size={
+                18
+              }
+            />
+          </button>
+        </header>
+
+        <form
+          className={
+            styles.bulkRestockForm
+          }
+          onSubmit={
+            handleSubmit
+          }
+        >
+          <section
+            className={
+              styles.bulkMeta
+            }
+          >
+            <label
+              className={
+                styles.field
+              }
+            >
+              <span>
+                Reference
+              </span>
+
+              <input
+                type="text"
+                maxLength={
+                  120
+                }
+                value={
+                  reference
+                }
+                placeholder="Example: SUPPLIER-INV-104"
+                onChange={(
+                  event,
+                ) =>
+                  setReference(
+                    event.target
+                      .value,
+                  )
+                }
+              />
+            </label>
+
+            <label
+              className={
+                styles.field
+              }
+            >
+              <span>
+                Reason
+              </span>
+
+              <textarea
+                rows={
+                  3
+                }
+                required
+                minLength={
+                  3
+                }
+                value={
+                  reason
+                }
+                placeholder="Example: October supplier shipment"
+                onChange={(
+                  event,
+                ) =>
+                  setReason(
+                    event.target
+                      .value,
+                  )
+                }
+              />
+            </label>
+          </section>
+                    <section
+            className={
+              styles.csvTools
+            }
+          >
+            <button
+              type="button"
+              className={
+                styles.csvTemplateButton
+              }
+              onClick={
+                downloadTemplate
+              }
+            >
+              <Download
+                size={
+                  14
+                }
+              />
+
+              Download CSV Template
+            </button>
+
+            <label
+              className={
+                styles.csvUploadButton
+              }
+            >
+              <FileUp
+                size={
+                  14
+                }
+              />
+
+              Upload Completed CSV
+
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(
+                  event,
+                ) => {
+                  const file =
+                    event.target
+                      .files?.[
+                        0
+                      ];
+
+                  if (
+                    file
+                  ) {
+                    void handleCsvFile(
+                      file,
+                    );
+                  }
+
+                  event.target.value =
+                    "";
+                }}
+              />
+            </label>
+          </section>
+                    {csvImport ? (
+            <section
+              className={
+                styles.csvPreview
+              }
+            >
+              <div
+                className={
+                  styles.csvPreviewHeader
+                }
+              >
+                <div>
+                  <strong>
+                    {
+                      csvImport.filename
+                    }
+                  </strong>
+
+                  <span>
+                    {
+                      csvValidRows.length
+                    }{" "}
+                    valid SKUs ·{" "}
+                    {
+                      csvErrors.length
+                    }{" "}
+                    errors
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCsvImport(
+                      null,
+                    );
+
+                    setQuantities(
+                      {},
+                    );
+                  }}
+                >
+                  Clear CSV
+                </button>
+              </div>
+
+              {csvErrors.length >
+              0 ? (
+                <div
+                  className={
+                    styles.csvErrorList
+                  }
+                >
+                  {csvErrors.map(
+                    (
+                      row,
+                      index,
+                    ) => (
+                      <div
+                        key={`${row.sku}-${index}`}
+                      >
+                        <strong>
+                          {row.sku ||
+                            "Missing SKU"}
+                        </strong>
+
+                        <span>
+                          {
+                            row.error
+                          }
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <div
+                  className={
+                    styles.csvReady
+                  }
+                >
+                  <CheckCircle2
+                    size={
+                      15
+                    }
+                  />
+
+                  CSV validated and ready to import.
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          <label
+            className={
+              styles.bulkSearch
+            }
+          >
+            <Search
+              size={
+                15
+              }
+            />
+
+            <input
+              value={
+                search
+              }
+              placeholder="Search product, SKU, size or color..."
+              onChange={(
+                event,
+              ) =>
+                setSearch(
+                  event.target
+                    .value,
+                )
+              }
+            />
+          </label>
+
+          <div
+            className={
+              styles.bulkVariantList
+            }
+          >
+            {visibleVariants.map(
+              (
+                variant,
+              ) => (
+                <div
+                  key={
+                    variant.id
+                  }
+                  className={
+                    styles.bulkVariantRow
+                  }
+                >
+                  <div>
+                    <strong>
+                      {
+                        variant.product
+                      }
+                    </strong>
+
+                    <span>
+                      {
+                        variant.sku
+                      }
+
+                      {variant.color
+                        ? ` · ${variant.color}`
+                        : ""}
+
+                      {variant.size
+                        ? ` · ${variant.size}`
+                        : ""}
+                    </span>
+                  </div>
+
+                  <div
+                    className={
+                      styles.bulkStockInfo
+                    }
+                  >
+                    <span>
+                      Current
+                    </span>
+
+                    <strong>
+                      {
+                        variant.stock
+                      }
+                    </strong>
+                  </div>
+
+                  <label
+                    className={
+                      styles.bulkQty
+                    }
+                  >
+                    <span>
+                      Add
+                    </span>
+
+                    <input
+                      type="number"
+                      min={
+                        0
+                      }
+                      value={
+                        quantities[
+                          variant.id
+                        ] ??
+                        0
+                      }
+                      onChange={(
+                        event,
+                      ) =>
+                        setQuantities(
+                          (
+                            current,
+                          ) => ({
+                            ...current,
+
+                            [variant.id]:
+                              Math.max(
+                                0,
+                                Number(
+                                  event.target
+                                    .value,
+                                ) ||
+                                  0,
+                              ),
+                          }),
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+              ),
+            )}
+          </div>
+
+          <footer
+            className={
+              styles.bulkFooter
+            }
+          >
+            <div>
+              <span>
+                {
+                  adjustments.length
+                }{" "}
+                SKUs
+              </span>
+
+              <strong>
+                +
+                {
+                  totalUnits
+                }{" "}
+                units
+              </strong>
+            </div>
+
+            <button
+              type="submit"
+              disabled={
+                busy ||
+                adjustments.length ===
+                  0 ||
+                reason.trim().length <
+                  3 ||
+                csvErrors.length >
+                  0
+              }
+            >
+              {busy
+                ? "Saving..."
+                : "Confirm Bulk Restock"}
+            </button>
+          </footer>
+        </form>
+      </aside>
+    </div>
+  );
+}
+
+
+
+/* =========================================================
+   ADJUSTMENT DRAWER
+   ========================================================= */
+
+function AdjustmentDrawer({
+  variant,
+  busy,
+  close,
+  adjustStock,
+  updateVariant,
+}: {
+  variant:
+    InventoryVariant;
+
+  busy:
+    boolean;
+
+  close:
+    () => void;
+
+  adjustStock:
+    (
+      variant:
+        InventoryVariant,
+
+      quantityChange:
+        number,
+
+      type:
+        AdjustmentType,
+
+      reason:
+        string,
+
+      reference:
+        string,
+    ) =>
+      Promise<boolean>;
+
+  updateVariant:
+    (
+      variant:
+        InventoryVariant,
+
+      changes:
+        {
+          lowStockThreshold?:
+            number;
+
+          active?:
+            boolean;
+        },
+    ) =>
+      Promise<boolean>;
+}) {
+  const [
+    direction,
+    setDirection,
+  ] =
+    useState<
+      "ADD" |
+      "REMOVE"
+    >(
+      "ADD",
+    );
+
+  const [
+    quantity,
+    setQuantity,
+  ] =
+    useState(
+      1,
+    );
+
+  const [
+    type,
+    setType,
+  ] =
+    useState<AdjustmentType>(
+      "PURCHASE",
+    );
+
+  const [
+    reference,
+    setReference,
+  ] =
+    useState("");
+
+  const [
+    reason,
+    setReason,
+  ] =
+    useState("");
+
+      useEffect(
+    () => {
+      if (
+        type ===
+        "PURCHASE"
+      ) {
+        setDirection(
+          "ADD",
+        );
+      }
+
+      if (
+        type ===
+        "DAMAGE"
+      ) {
+        setDirection(
+          "REMOVE",
+        );
+      }
+    },
+    [
+      type,
+    ],
+  );
+
+  const [
+    threshold,
+    setThreshold,
+  ] =
+    useState(
+      variant.lowStockThreshold,
+    );
+
+  const afterPreview =
+    direction ===
+    "ADD"
+      ? variant.stock +
+        quantity
+      : variant.stock -
+        quantity;
+
+  async function submit(
+    event:
+      React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    if (
+      quantity <=
+        0 ||
+      reason.trim().length <
+        3
+    ) {
+      return;
+    }
+
+    await adjustStock(
+      variant,
+
+      direction ===
+      "ADD"
+        ? quantity
+        : -quantity,
+
+      type,
+
+      reason.trim(),
+
+      reference.trim(),
+    );
+  }
+
+  return (
+    <div
+      className={
+        styles.drawerBackdrop
+      }
+      onMouseDown={(
+        event,
+      ) => {
+        if (
+          event.target ===
+          event.currentTarget
+        ) {
+          close();
+        }
+      }}
+    >
+      <aside
+        className={
+          styles.drawer
+        }
+      >
+        <header
+          className={
+            styles.drawerHeader
+          }
+        >
+          <div>
+            <span>
+              Inventory Adjustment
+            </span>
+
+            <h2>
+              {
+                variant.product
+              }
+            </h2>
+
+            <small>
+              {
+                variant.sku
+              }
+            </small>
+          </div>
+
+          <button
+            type="button"
+            onClick={
+              close
+            }
+            aria-label="Close"
+          >
+            <X
+              size={
+                18
+              }
+            />
+          </button>
+        </header>
+
+        <div
+          className={
+            styles.drawerBody
+          }
+        >
+          <section
+            className={
+              styles.stockSnapshot
+            }
+          >
+            <div>
+              <span>
+                Current Stock
+              </span>
+
+              <strong>
+                {
+                  variant.stock
+                }
+              </strong>
+            </div>
+
+            <ChevronRight
+              size={
+                20
+              }
+            />
+
+            <div>
+              <span>
+                After Change
+              </span>
+
+              <strong
+                className={
+                  afterPreview <
+                  0
+                    ? styles.negative
+                    : ""
+                }
+              >
+                {
+                  afterPreview
+                }
+              </strong>
+            </div>
+          </section>
+
+          <form
+            className={
+              styles.adjustForm
+            }
+            onSubmit={
+              submit
+            }
+          >
+                        <label
+              className={
+                styles.field
+              }
+            >
+              <span>
+                Transaction Type
+              </span>
+
+              <select
+                value={
+                  type
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setType(
+                    event.target
+                      .value as AdjustmentType,
+                  )
+                }
+              >
+                <option value="PURCHASE">
+                  Purchase / Restock
+                </option>
+
+                <option value="DAMAGE">
+                  Damaged Stock
+                </option>
+
+                <option value="MANUAL_ADJUSTMENT">
+                  Manual Adjustment
+                </option>
+
+                <option value="CORRECTION">
+                  Stock Correction
+                </option>
+              </select>
+            </label>
+            <div
+              className={
+                styles.directionTabs
+              }
+            >
+              <button
+                type="button"
+                disabled={
+                  type ===
+                  "DAMAGE"
+                }
+                className={
+                  direction ===
+                  "ADD"
+                    ? styles.directionActive
+                    : ""
+                }
+                onClick={() =>
+                  setDirection(
+                    "ADD",
+                  )
+                }
+              >
+                <Plus
+                  size={
+                    15
+                  }
+                />
+
+                Add Stock
+              </button>
+
+              <button
+                type="button"
+                disabled={
+                  type ===
+                  "PURCHASE"
+                }
+                className={
+                  direction ===
+                  "REMOVE"
+                    ? styles.directionRemove
+                    : ""
+                }
+                onClick={() =>
+                  setDirection(
+                    "REMOVE",
+                  )
+                }
+              >
+                <Minus
+                  size={
+                    15
+                  }
+                />
+
+                Remove Stock
+              </button>
+            </div>
+
+            <label
+              className={
+                styles.field
+              }
+            >
+              <span>
+                Quantity
+              </span>
+
+              <input
+                type="number"
+                min={
+                  1
+                }
+                value={
+                  quantity
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setQuantity(
+                    Math.max(
+                      1,
+                      Number(
+                        event.target
+                          .value,
+                      ) ||
+                        1,
+                    ),
+                  )
+                }
+              />
+            </label>
+
+
+            <label
+              className={
+                styles.field
+              }
+            >
+              <span>
+                Reference
+              </span>
+
+              <input
+                type="text"
+                maxLength={
+                  120
+                }
+                value={
+                  reference
+                }
+                placeholder="Example: PO-1025, Supplier invoice"
+                onChange={(
+                  event,
+                ) =>
+                  setReference(
+                    event.target
+                      .value,
+                  )
+                }
+              />
+            </label>
+            <label
+              className={
+                styles.field
+              }
+            >
+              <span>
+                Reason
+              </span>
+
+              <textarea
+                rows={
+                  4
+                }
+                minLength={
+                  3
+                }
+                required
+                value={
+                  reason
+                }
+                placeholder={
+  type ===
+  "PURCHASE"
+    ? "Example: October supplier restock"
+    : type ===
+        "DAMAGE"
+      ? "Example: Two pieces damaged in warehouse"
+      : type ===
+          "CORRECTION"
+        ? "Example: Physical stock count correction"
+        : "Explain why this adjustment is required"
+}
+                onChange={(
+                  event,
+                ) =>
+                  setReason(
+                    event.target
+                      .value,
+                  )
+                }
+              />
+            </label>
+
+            {afterPreview <
+            0 ? (
+              <div
+                className={
+                  styles.drawerWarning
+                }
+              >
+                <AlertTriangle
+                  size={
+                    14
+                  }
+                />
+
+                Stock cannot become
+                negative.
+              </div>
+            ) : null}
+
+            <button
+              type="submit"
+              className={
+                styles.saveAdjustment
+              }
+              disabled={
+                busy ||
+                afterPreview <
+                  0 ||
+                reason.trim().length <
+                  3
+              }
+            >
+              {busy
+                ? "Saving..."
+                : direction ===
+                    "ADD"
+                  ? "Add Stock"
+                  : "Remove Stock"}
+            </button>
+          </form>
+
+          <section
+            className={
+              styles.drawerSection
+            }
+          >
+            <div
+              className={
+                styles.drawerSectionTitle
+              }
+            >
+              <strong>
+                Low Stock Alert
+              </strong>
+
+              <span>
+                Alert when stock
+                reaches this level.
+              </span>
+            </div>
+
+            <div
+              className={
+                styles.thresholdEditor
+              }
+            >
+              <input
+                type="number"
+                min={
+                  0
+                }
+                value={
+                  threshold
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setThreshold(
+                    Math.max(
+                      0,
+                      Number(
+                        event.target
+                          .value,
+                      ) ||
+                        0,
+                    ),
+                  )
+                }
+              />
+
+              <button
+                type="button"
+                disabled={
+                  busy ||
+                  threshold ===
+                    variant.lowStockThreshold
+                }
+                onClick={() =>
+                  void updateVariant(
+                    variant,
+                    {
+                      lowStockThreshold:
+                        threshold,
+                    },
+                  )
+                }
+              >
+                Save Threshold
+              </button>
+            </div>
+          </section>
+
+          <section
+            className={
+              styles.drawerSection
+            }
+          >
+            <div
+              className={
+                styles.variantSetting
+              }
+            >
+              <div>
+                <strong>
+                  Variant Active
+                </strong>
+
+                <span>
+                  Inactive variants
+                  remain in inventory
+                  history but are not
+                  treated as sellable
+                  stock.
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className={
+                  variant.active
+                    ? styles.deactivateButton
+                    : styles.activateButton
+                }
+                disabled={
+                  busy
+                }
+                onClick={() =>
+                  void updateVariant(
+                    variant,
+                    {
+                      active:
+                        !variant.active,
+                    },
+                  )
+                }
+              >
+                {variant.active
+                  ? "Deactivate"
+                  : "Activate"}
+              </button>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+function EmptyState({
+  reset,
+}: {
+  reset?:
+    () => void;
+}) {
+  return (
+    <div
+      className={
+        styles.empty
+      }
+    >
+      <PackageCheck
+        size={
+          30
+        }
+      />
+
+      <strong>
+        No inventory records found
+      </strong>
+
+      <p>
+        Inventory variants will
+        appear here when products
+        and variants are created.
+      </p>
+
+      {reset ? (
+        <button
+          type="button"
+          onClick={
+            reset
+          }
+        >
+          Clear filters
+        </button>
+      ) : null}
+    </div>
+  );
+}

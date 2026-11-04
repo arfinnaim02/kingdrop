@@ -1,0 +1,46 @@
+import type { Metadata } from "next";
+
+import "./globals.css";
+
+import { StoreProvider } from "@/components/shared/store-provider";
+
+export const metadata: Metadata = {
+  title: {
+    default: "GameOn Garb | Experience the Thrill",
+    template: "%s | GameOn Garb",
+  },
+
+  description:
+    "Premium sports-inspired fashion and everyday style across Bangladesh.",
+
+  metadataBase: new URL(
+    process.env.APP_URL ??
+      "https://www.gameongarb.com",
+  ),
+
+  openGraph: {
+    title: "GameOn Garb",
+    description: "Game on. Every day.",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <StoreProvider>
+          {children}
+        </StoreProvider>
+      </body>
+    </html>
+  );
+}
