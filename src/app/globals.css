@@ -18029,3 +18029,94 @@ hr {
   .kingdropp-editorial-inner p { margin-top: 14px; font-size: 14px; }
   .kingdropp-editorial-link { margin-top: 4px; }
 }
+
+
+/* =========================================================
+   KINGDROPP PHASE 2B — COLLECTION AND PRODUCT PRESENTATION
+   Visual-only enhancements; no commerce state or inventory changes.
+   ========================================================= */
+.kingdropp-collections {
+  color: var(--brand-jet);
+}
+.kingdropp-collections > .eyebrow {
+  color: #665a4d;
+  letter-spacing: .18em;
+  font-size: 11px;
+}
+.kingdropp-collections > .display {
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1.02;
+  letter-spacing: -.06em;
+}
+.kingdropp-collections-intro {
+  margin: -13px 0 32px;
+  max-width: 610px;
+  color: #615c56;
+  line-height: 1.7;
+}
+.kingdropp-collections .card {
+  border: 1px solid var(--brand-stone);
+  box-shadow: 0 9px 30px rgb(20 20 20 / 5%);
+}
+.kingdropp-product-card .product-card-media {
+  background: var(--brand-warm-white);
+}
+.kingdropp-product-card .product-card-content {
+  padding-top: 16px;
+}
+.kingdropp-product-card-label,
+.kingdropp-product-detail-kicker {
+  display: block;
+  color: #665a4d;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.kingdropp-product-card-label {
+  margin: 0 0 7px;
+}
+.kingdropp-product-card .product-card-title {
+  letter-spacing: -.025em;
+}
+.kingdropp-product-card .price,
+.kingdropp-product-page .product-detail-price {
+  color: var(--brand-jet);
+}
+.kingdropp-product-card .product-card-quick-add {
+  letter-spacing: .045em;
+}
+.kingdropp-product-page .product-detail-title {
+  font-style: normal;
+  letter-spacing: -.055em;
+}
+.kingdropp-product-detail-kicker {
+  margin-bottom: 12px;
+}
+.kingdropp-product-page .product-gallery-stage {
+  background: var(--brand-warm-white);
+}
+.kingdropp-product-page .product-detail-info {
+  color: var(--brand-jet);
+}
+@media (max-width: 767px) {
+  .kingdropp-collections > .display {
+    font-size: clamp(2.3rem, 9vw, 3.7rem) !important;
+  }
+  .kingdropp-collections-intro {
+    margin: -10px 0 24px;
+    font-size: 14px;
+  }
+  .kingdropp-product-card .product-card-content {
+    padding-top: 11px;
+  }
+  .kingdropp-product-card-label {
+    font-size: 9px;
+    letter-spacing: .12em;
+  }
+  .kingdropp-product-detail-kicker {
+    margin-bottom: 8px;
+  }
+}

@@ -827,7 +827,7 @@ export function ProductDetail({
      ======================================================= */
 
   return (
-    <main className="product-detail-page">
+    <main className="product-detail-page kingdropp-product-page">
       <div className="container product-detail-container">
         {/* =================================================
             BREADCRUMB
@@ -1046,6 +1046,7 @@ export function ProductDetail({
               =============================================== */}
 
           <section className="product-detail-info">
+            <span className="kingdropp-product-detail-kicker">KINGDROPP / RULE YOUR STYLE</span>
             {product.badge ? (
               <span className="product-detail-eyebrow">
                 {

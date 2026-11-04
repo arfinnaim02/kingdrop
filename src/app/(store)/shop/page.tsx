@@ -1,6 +1,7 @@
 import type {
   Metadata,
 } from "next";
+import { BRAND } from "@/lib/brand";
 
 import {
   Suspense,
@@ -25,11 +26,10 @@ import {
 
 export const metadata:
   Metadata = {
-  title:
-    "Shop",
+  title: `Shop Premium Menswear | ${BRAND.name}`,
 
   description:
-    "Shop premium GameOn Garb sports and lifestyle fashion.",
+    "Discover considered everyday essentials, refined fits and contemporary menswear at KINGDROPP. Rule Your Style.",
 };
 
 export const dynamic =

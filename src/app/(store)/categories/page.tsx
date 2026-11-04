@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { BRAND } from "@/lib/brand";
 
 import {
   ChevronRight,
@@ -9,6 +11,11 @@ import {
   getCategoryTree,
 } from "@/lib/catalog";
 
+export const metadata: Metadata = {
+  title: `Shop Collections | ${BRAND.name}`,
+  description: "Discover KINGDROPP menswear collections, refined everyday essentials and contemporary fits. Rule Your Style.",
+};
+
 export const dynamic =
   "force-dynamic";
 
@@ -18,14 +25,14 @@ export default async function Categories() {
 
   return (
     <div
-      className="container"
+      className="container kingdropp-collections"
       style={{
         padding:
           "40px 0 70px",
       }}
     >
       <span className="eyebrow">
-        Explore
+        {BRAND.name} / The Edit
       </span>
 
       <h1
@@ -38,8 +45,9 @@ export default async function Categories() {
             "8px 0 32px",
         }}
       >
-        Categories
+        Shop Collections
       </h1>
+      <p className="kingdropp-collections-intro">Explore refined essentials and discover pieces made for your everyday style.</p>
 
       <div
         style={{

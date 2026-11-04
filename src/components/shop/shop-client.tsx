@@ -126,7 +126,7 @@ const CATEGORY_PRODUCT_LIMIT =
   8;
 
 const RECENT_SEARCH_KEY =
-  "gog_recent_searches";
+  "kingdropp_recent_searches";
 
 const RECENT_SEARCH_LIMIT =
   6;
@@ -2504,7 +2504,7 @@ export function ShopClient({
         ? "Offers"
         : appliedQuery
           ? `Search Results`
-          : "All Products"
+          : "The Collection"
     );
 
   /* =======================================================
@@ -2522,7 +2522,7 @@ export function ShopClient({
           <div className={styles.discoveryHeading}>
             <div>
               <span>
-                Shop GameOn Garb
+                Shop KINGDROPP
               </span>
 
               <h2>
