@@ -55,6 +55,16 @@ const admin = validateSeedEnvironment();
 const db = new PrismaClient();
 
 async function main() {
+  // This is an initial setup only: refuse any populated database.
+  const [users, products, orders] = await Promise.all([
+    db.user.count(),
+    db.product.count(),
+    db.order.count(),
+  ]);
+  if (users > 0 || products > 0 || orders > 0) {
+    throw new Error("Database is not empty. Seeding would risk existing data; operation refused.");
+  }
+
   const existingAdmin = await db.user.findFirst({
     where: { role: "SUPER_ADMIN" },
     select: { id: true },
