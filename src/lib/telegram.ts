@@ -15,6 +15,9 @@ import {
    ========================================================= */
 
 function getTelegramConfig() {
+  // Opt-in only after a dedicated KINGDROPP bot and chat are configured.
+  if (process.env.KINGDROPP_TELEGRAM_ENABLED !== "true") return null;
+
   const token =
     process.env
       .TELEGRAM_BOT_TOKEN;
@@ -615,7 +618,7 @@ function orderButtons(
             "✅ Confirm",
 
           callback_data:
-            `gog:${id}:CONFIRMED`,
+            `kd:${id}:CONFIRMED`,
         },
 
         {
@@ -623,7 +626,7 @@ function orderButtons(
             "❌ Cancel",
 
           callback_data:
-            `gog:${id}:CANCELLED`,
+            `kd:${id}:CANCELLED`,
         },
       ],
     ];
@@ -640,7 +643,7 @@ function orderButtons(
             "📦 Start Packing",
 
           callback_data:
-            `gog:${id}:PACKING`,
+            `kd:${id}:PACKING`,
         },
       ],
 
@@ -650,7 +653,7 @@ function orderButtons(
             "❌ Cancel",
 
           callback_data:
-            `gog:${id}:CANCELLED`,
+            `kd:${id}:CANCELLED`,
         },
       ],
     ];
@@ -667,7 +670,7 @@ function orderButtons(
             "✅ Ready to Ship",
 
           callback_data:
-            `gog:${id}:READY_TO_SHIP`,
+            `kd:${id}:READY_TO_SHIP`,
         },
       ],
 
@@ -677,7 +680,7 @@ function orderButtons(
             "❌ Cancel",
 
           callback_data:
-            `gog:${id}:CANCELLED`,
+            `kd:${id}:CANCELLED`,
         },
       ],
     ];
@@ -694,7 +697,7 @@ function orderButtons(
             "🚚 Mark Shipped",
 
           callback_data:
-            `gog:${id}:SHIPPED`,
+            `kd:${id}:SHIPPED`,
         },
       ],
 
@@ -704,7 +707,7 @@ function orderButtons(
             "❌ Cancel",
 
           callback_data:
-            `gog:${id}:CANCELLED`,
+            `kd:${id}:CANCELLED`,
         },
       ],
     ];
@@ -721,7 +724,7 @@ function orderButtons(
             "✅ Delivered",
 
           callback_data:
-            `gog:${id}:DELIVERED`,
+            `kd:${id}:DELIVERED`,
         },
 
         {
@@ -729,7 +732,7 @@ function orderButtons(
             "⚠️ Failed Delivery",
 
           callback_data:
-            `gog:${id}:FAILED_DELIVERY`,
+            `kd:${id}:FAILED_DELIVERY`,
         },
       ],
     ];
@@ -891,7 +894,7 @@ async function buildOrderMessage(
         : "Unpaid";
 
   return [
-    "🛍 <b>GameOn Garb — ORDER</b>",
+    "🛍 <b>KINGDROPP — ORDER</b>",
     "",
     `🧾 <b>${escapeHtml(
       order.number,
@@ -1401,7 +1404,7 @@ ${escapeHtml(
                 `✅ ${order.number} → Confirm`,
 
               callback_data:
-                `gog:${order.id}:CONFIRMED`,
+                `kd:${order.id}:CONFIRMED`,
             },
 
             {
@@ -1409,7 +1412,7 @@ ${escapeHtml(
                 "❌ Cancel",
 
               callback_data:
-                `gog:${order.id}:CANCELLED`,
+                `kd:${order.id}:CANCELLED`,
             },
           ]);
         }
@@ -1424,7 +1427,7 @@ ${escapeHtml(
                 `📦 ${order.number} → Packing`,
 
               callback_data:
-                `gog:${order.id}:PACKING`,
+                `kd:${order.id}:PACKING`,
             },
 
             {
@@ -1432,7 +1435,7 @@ ${escapeHtml(
                 "❌ Cancel",
 
               callback_data:
-                `gog:${order.id}:CANCELLED`,
+                `kd:${order.id}:CANCELLED`,
             },
           ]);
         }
@@ -1447,7 +1450,7 @@ ${escapeHtml(
                 `✅ ${order.number} → Ready`,
 
               callback_data:
-                `gog:${order.id}:READY_TO_SHIP`,
+                `kd:${order.id}:READY_TO_SHIP`,
             },
 
             {
@@ -1455,7 +1458,7 @@ ${escapeHtml(
                 "❌ Cancel",
 
               callback_data:
-                `gog:${order.id}:CANCELLED`,
+                `kd:${order.id}:CANCELLED`,
             },
           ]);
         }
@@ -1470,7 +1473,7 @@ ${escapeHtml(
                 `🚚 ${order.number} → Shipped`,
 
               callback_data:
-                `gog:${order.id}:SHIPPED`,
+                `kd:${order.id}:SHIPPED`,
             },
 
             {
@@ -1478,7 +1481,7 @@ ${escapeHtml(
                 "❌ Cancel",
 
               callback_data:
-                `gog:${order.id}:CANCELLED`,
+                `kd:${order.id}:CANCELLED`,
             },
           ]);
         }
@@ -1493,7 +1496,7 @@ ${escapeHtml(
                 `✅ ${order.number} → Delivered`,
 
               callback_data:
-                `gog:${order.id}:DELIVERED`,
+                `kd:${order.id}:DELIVERED`,
             },
 
             {
@@ -1501,7 +1504,7 @@ ${escapeHtml(
                 "⚠️ Failed",
 
               callback_data:
-                `gog:${order.id}:FAILED_DELIVERY`,
+                `kd:${order.id}:FAILED_DELIVERY`,
             },
           ]);
         }
