@@ -84,6 +84,17 @@ Run `npm run config:check` in an environment where KINGDROPP variables are confi
 
 Keep `BKASH_PUBLIC_ENABLED` off and `NOTIFICATION_WORKER_ENABLED` off until dedicated provider accounts and callbacks are fully tested. Configure `APP_URL` as the actual HTTPS KINGDROPP origin. Verify courier/storage/tracking settings independently.
 
+## Phase 4B — launch safety (review before deployment)
+
+- **Fail-closed storefront:** the shop UI and order-creation API require `general.storeLive === true` and `general.maintenanceMode === false`. When missing, invalid or in maintenance, checkout is unavailable. Payment settings default to **both methods disabled** unless individually enabled. Existing shipping, pricing, coupons and inventory rules are not changed.
+- **Session cookie isolation:** KINGDROPP now uses `kingdropp_session` and `kingdropp_order_access`, plus `kingdropp_oauth_*` transient cookies. The old `gog_*` auth cookies are **not accepted**, so previously signed-in KINGDROPP browsers will be signed out on rollout. Keep this change atomic with all login/register/OAuth/admin/order/payment handlers.
+- **Password reset:** in production set `KINGDROPP_PASSWORD_RESET_EMAIL_ENABLED=true` only after verifying an isolated `RESEND_API_KEY`, `EMAIL_FROM`, and a HTTPS `APP_URL`. Until then recovery is unavailable (503); it never exposes reset tokens. The provider sends a 30-minute reset link, uses generic responses to avoid account enumeration, consumes tokens once, and revokes existing sessions.
+- **Rate limiting:** sensitive login, registration, OAuth completion, password reset and order tracking endpoints call the distributed `strictRateLimit` adapter. In production it requires a dedicated KINGDROPP `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. If missing or unreachable, the protected operations **deny requests**. Non-production retains local limits for development.
+- **Testing:** run `npm ci`, `npm run typecheck`, `npm run lint`, `npm test` and `npm run build` in an isolated development/staging checkout. Tests for store flags and simulated rate-limit failures do not connect to external services.
+- **Configuration:** use the tracked secret-free `.env.example` as a checklist; never commit real credentials. Verify trusted-client-IP forwarding on the deployment platform before launch.
+
+**Rollout order:** provision separate KINGDROPP Neon/Vercel/Resend/Upstash accounts; verify `APP_URL` and isolated credentials; run offline `npm run config:check`; run unit/build tests; verify cookies, forgot-password, checkout-disabled status and payment gates in staging; manually approve live activation. Do **not** enable payments or send production emails during repository review.
+
 ## Before enabling integrations
 
 - Configure independent Neon/PostgreSQL and Vercel projects.
