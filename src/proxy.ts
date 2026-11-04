@@ -5,6 +5,7 @@ import {
 
 import {
   readSessionToken,
+  SESSION_COOKIE_NAME,
 } from "@/lib/auth";
 
 export async function proxy(
@@ -32,7 +33,7 @@ export async function proxy(
 
   const token =
     req.cookies.get(
-      "kingdropp_session",
+      SESSION_COOKIE_NAME,
     )?.value;
 
   if (!token) {
@@ -106,7 +107,7 @@ export async function proxy(
       );
 
     response.cookies.delete(
-      "kingdropp_session",
+      SESSION_COOKIE_NAME,
     );
 
     return response;
