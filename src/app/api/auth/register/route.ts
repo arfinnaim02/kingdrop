@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { createSessionToken } from "@/lib/auth";
+import { createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { rateLimit, requestIp } from "@/lib/security/rate-limit";
 
 const schema = z
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       name: user.name,
     });
     const response = NextResponse.json({ ok: true }, { status: 201 });
-    response.cookies.set("gog_session", token, {
+    response.cookies.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
