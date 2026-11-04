@@ -10,9 +10,6 @@ import {
 
 import {
   ArrowRight,
-  Mail,
-  MapPin,
-  Phone,
 } from "lucide-react";
 
 import {
@@ -188,10 +185,6 @@ export function StoreFooter({
     setSubmitting,
   ] = useState(false);
 
-  // Do not expose source-brand address, phone, or email from legacy seed data.
-  const phone = "";
-  const contactEmail = "";
-  const address = "";
   const socialLinks = OFFICIAL_SOCIAL_LINKS;
 
   const footerCategories =
@@ -295,73 +288,7 @@ export function StoreFooter({
             {BRAND.tagline}
           </span>
 
-          <div className="store-footer-contact-box">
-            <div className="store-footer-contact-list">
-              {phone ? (
-                <a
-                  href={`tel:${phone}`}
-                  className="store-footer-contact-row"
-                >
-                  <span className="store-footer-contact-icon">
-                    <Phone
-                      size={14}
-                      strokeWidth={
-                        1.8
-                      }
-                    />
-                  </span>
-
-                  <span className="store-footer-contact-copy">
-                    <small>
-                      Call Us
-                    </small>
-
-                    <strong>
-                      {phone}
-                    </strong>
-                  </span>
-                </a>
-              ) : null}
-
-              {contactEmail ? (
-                <a
-                  href={`mailto:${contactEmail}`}
-                  className="store-footer-contact-row"
-                >
-                  <span className="store-footer-contact-icon">
-                    <Mail
-                      size={14}
-                      strokeWidth={
-                        1.8
-                      }
-                    />
-                  </span>
-
-                  <span className="store-footer-contact-copy">
-                    <small>
-                      Email Us
-                    </small>
-
-                    <strong>
-                      {
-                        contactEmail
-                      }
-                    </strong>
-                  </span>
-                </a>
-              ) : null}
-
-              {address ? (
-                <div className="store-footer-contact-row store-footer-address-row">
-                  <MapPin size={15} aria-hidden="true" />
-                  <span className="store-footer-contact-copy">
-                    <small>Visit Our Store</small>
-                    <strong>{address}</strong>
-                  </span>
-                </div>
-              ) : null}
-            </div>
-          </div>
+          {/* Verified KINGDROPP support and store links will be added separately. */}
         </div>
 
         {/* =================================================
