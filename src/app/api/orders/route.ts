@@ -73,6 +73,7 @@ import {
 } from "@/lib/session";
 
 import { isStoreOpen, enabledPaymentMethods } from "@/lib/store-availability";
+import { ORDER_ACCESS_COOKIE_NAME } from "@/lib/auth";
 
 import {
   sendOrderToTelegram,
@@ -2302,7 +2303,7 @@ export async function POST(
 
     response.cookies.set(
 
-      "gog_order_access",
+      "kingdropp_order_access",
 
 
 
