@@ -34,6 +34,7 @@ import {
 import {
 
   createOrderAccessToken,
+  ORDER_ACCESS_COOKIE_NAME,
 
 } from "@/lib/auth";
 
@@ -73,7 +74,6 @@ import {
 } from "@/lib/session";
 
 import { isStoreOpen, enabledPaymentMethods } from "@/lib/store-availability";
-import { ORDER_ACCESS_COOKIE_NAME } from "@/lib/auth";
 
 import {
   sendOrderToTelegram,
@@ -2303,7 +2303,7 @@ export async function POST(
 
     response.cookies.set(
 
-      "kingdropp_order_access",
+      ORDER_ACCESS_COOKIE_NAME,
 
 
 
