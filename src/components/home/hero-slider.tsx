@@ -650,7 +650,7 @@ export function HeroSlider({
           <div className="premium-hero-eyebrow">
             <span />
 
-            GameOn Garb
+            {BRAND.name}
           </div>
 
           <h1 className="premium-hero-title">
