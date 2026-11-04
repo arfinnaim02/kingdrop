@@ -196,7 +196,7 @@ export function ProductCard({
   return (
     <>
       <article
-        className="product-card"
+        className="product-card kingdropp-product-card"
         onMouseEnter={() =>
           setHovered(
             true,
@@ -270,6 +270,7 @@ export function ProductCard({
           </div>
 
           <div className="product-card-content">
+            <span className="kingdropp-product-card-label">The KINGDROPP Edit</span>
             <h3 className="product-card-title">
               {
                 product.name
