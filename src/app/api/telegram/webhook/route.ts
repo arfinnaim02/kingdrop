@@ -341,7 +341,7 @@ export async function POST(
 
         text:
           [
-            "🛍 <b>GameOn Garb — ORDER CONTROL</b>",
+            "🛍 <b>KINGDROPP — ORDER CONTROL</b>",
             "",
             "📋 <b>ORDER LISTS</b>",
             "",
@@ -458,7 +458,7 @@ export async function POST(
 
   /* =======================================================
      CALLBACK
-     gog:ORDER_ID:STATUS
+     kd:ORDER_ID:STATUS
      ======================================================= */
 
   const [
@@ -577,7 +577,7 @@ export async function POST(
 
   if (
     prefix !==
-      "gog" ||
+      "kd" ||
     !orderId ||
     !requestedStatus
   ) {
