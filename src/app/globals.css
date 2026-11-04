@@ -1,24 +1,29 @@
 
 
 /* =========================================================
-   GameOn Garb — GLOBAL DESIGN SYSTEM
+   KINGDROPP — GLOBAL DESIGN SYSTEM
    Premium storefront + shared app styles
    ========================================================= */
 
 :root {
-  --ink: #0a0b0b;
-  --ink-soft: #151817;
+  --ink: #141414;
+  --ink-soft: #292929;
   --muted: #6f7470;
   --muted-dark: #a6aaa7;
   --line: #e7e8e4;
   --line-dark: #292c2b;
   --paper: #ffffff;
-  --wash: #f6f6f3;
-  --wash-2: #efefeb;
-  --orange: #ff5a16;
-  --orange-dark: #d8460a;
-  --orange-soft: #fff0e8;
-  --price: #e86a2b;
+  --brand-jet: #141414;
+  --brand-charcoal: #292929;
+  --brand-warm-white: #faf9f6;
+  --brand-stone: #d8d3cb;
+  --brand-taupe: #a99b89;
+  --wash: #faf9f6;
+  --wash-2: #f0eeea;
+  --orange: #6b5b4a;
+  --orange-dark: #4c4135;
+  --orange-soft: #f4f1ed;
+  --price: #6b5b4a;
   --green: #118750;
   --red: #d43b3b;
   --blue: #397cc5;

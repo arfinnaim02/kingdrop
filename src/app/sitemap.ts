@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
+import { getPublicSiteUrl } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.APP_URL ?? "https://www.gameongarb.com";
+  const base = getPublicSiteUrl();
+  if (!base) return [];
   const [
     products,
     categories,

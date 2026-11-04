@@ -3,24 +3,23 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { StoreProvider } from "@/components/shared/store-provider";
+import { BRAND, getPublicSiteUrl } from "@/lib/brand";
+
+const siteUrl = getPublicSiteUrl();
 
 export const metadata: Metadata = {
   title: {
-    default: "GameOn Garb | Experience the Thrill",
-    template: "%s | GameOn Garb",
+    default: BRAND.seoTitle,
+    template: `%s | ${BRAND.name}`,
   },
 
-  description:
-    "Premium sports-inspired fashion and everyday style across Bangladesh.",
+  description: BRAND.seoDescription,
 
-  metadataBase: new URL(
-    process.env.APP_URL ??
-      "https://www.gameongarb.com",
-  ),
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
 
   openGraph: {
-    title: "GameOn Garb",
-    description: "Game on. Every day.",
+    title: BRAND.seoTitle,
+    description: BRAND.seoDescription,
     type: "website",
   },
 
