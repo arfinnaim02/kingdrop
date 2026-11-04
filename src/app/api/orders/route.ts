@@ -72,6 +72,8 @@ import {
 
 } from "@/lib/session";
 
+import { isStoreOpen, enabledPaymentMethods } from "@/lib/store-availability";
+
 import {
   sendOrderToTelegram,
 } from "@/lib/telegram";
@@ -395,17 +397,7 @@ export async function POST(
 
 
 
-    if (
-
-      general.storeLive ===
-
-        false ||
-
-      general.maintenanceMode ===
-
-        true
-
-    ) {
+    if (!isStoreOpen(general)) {
 
       return NextResponse.json(
 
@@ -477,53 +469,9 @@ export async function POST(
 
 
 
-    const payments =
-
-      (
-
-        settings.find(
-
-          (
-
-            item,
-
-          ) =>
-
-            item.key ===
-
-            "payments",
-
-        )?.value ??
-
-        {
-
-          codEnabled:
-
-            true,
-
-
-
-          bkashEnabled:
-
-            true,
-
-        }
-
-      ) as {
-
-        codEnabled:
-
-          boolean;
-
-
-
-        bkashEnabled:
-
-          boolean;
-
-      };
-
-
+    const payments = enabledPaymentMethods(
+      settings.find((item) => item.key === "payments")?.value,
+    );
 
     const bkashAllowed =
       payments.bkashEnabled &&
