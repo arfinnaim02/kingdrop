@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-const attempts = new Map<string, { count: number; at: number }>();
+import { strictRateLimit, requestIp } from "@/lib/security/rate-limit";
 export async function GET(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
-  const now = Date.now();
-  const hit = attempts.get(ip);
-  if (hit && now - hit.at < 60_000 && hit.count >= 10)
+  const limit = await strictRateLimit(`order-track:${requestIp(req)}`, 10, 60_000);
+  if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many attempts. Try again shortly." },
-      { status: 429 },
+      { status: 429, headers: { "retry-after": String(limit.retryAfter) } },
     );
-  attempts.set(ip, {
-    count: hit && now - hit.at < 60_000 ? hit.count + 1 : 1,
-    at: now,
-  });
+  }
   const order = req.nextUrl.searchParams.get("order")?.trim();
   const phone = req.nextUrl.searchParams.get("phone")?.trim();
   if (!order || !/^01\d{9}$/.test(phone ?? ""))
