@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
-import { rateLimit, requestIp } from "@/lib/security/rate-limit";
+import { strictRateLimit, requestIp } from "@/lib/security/rate-limit";
 
 const schema = z
   .object({
@@ -19,7 +19,8 @@ const schema = z
   });
 
 export async function POST(request: Request) {
-  const limit = rateLimit(`register:${requestIp(request)}`, 5, 60 * 60_000);
+  const limit =
+    await strictRateLimit(`register:${requestIp(request)}`, 5, 60 * 60_000);
   if (!limit.allowed)
     return NextResponse.json(
       { error: "Too many registration attempts. Please try again later." },
