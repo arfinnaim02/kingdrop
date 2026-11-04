@@ -37,7 +37,7 @@ export default function LoginPage() {
             }
           >
             <span>
-              GameOn Garb
+              KINGDROPP
             </span>
 
             <h2>
@@ -120,8 +120,8 @@ export default function LoginPage() {
             >
               Enter your account
               details to continue
-              shopping with Game On
-              Garb.
+              shopping with
+              KINGDROPP.
             </p>
           </div>
 
