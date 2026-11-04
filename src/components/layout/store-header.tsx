@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { BRAND } from "@/lib/brand";
+
 import {
   usePathname,
 } from "next/navigation";
@@ -174,7 +176,7 @@ export function StoreHeader({
             aria-label="Main navigation"
           >
             <Link href="/shop?sort=newest">
-              New In
+              New Arrivals
             </Link>
 
             {navCategories.map(
@@ -193,6 +195,8 @@ export function StoreHeader({
                 </Link>
               ),
             )}
+
+            <Link href="/categories">Collections</Link>
 
             <Link
               href="/shop?offers=1"
@@ -357,7 +361,7 @@ export function StoreHeader({
             >
               <MobileMenuLink
                 href="/shop?sort=newest"
-                label="New In"
+                label="New Arrivals"
                 close={() =>
                   setMenuOpen(
                     false,
@@ -385,6 +389,12 @@ export function StoreHeader({
                   />
                 ),
               )}
+
+              <MobileMenuLink
+                href="/categories"
+                label="All Collections"
+                close={() => setMenuOpen(false)}
+              />
 
               <MobileMenuLink
                 href="/shop?offers=1"
@@ -448,11 +458,11 @@ export function StoreHeader({
 
             <div className="mobile-menu-footer">
               <p>
-                GameOn Garb
+                {BRAND.name}
               </p>
 
               <span>
-                Experience The Thrill
+                {BRAND.tagline}
               </span>
             </div>
           </aside>
