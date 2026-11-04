@@ -90,6 +90,11 @@ export async function POST(
   request:
     Request,
 ) {
+  // Never accept order-control commands until the KINGDROPP bot is verified.
+  if (process.env.KINGDROPP_TELEGRAM_ENABLED !== "true") {
+    return NextResponse.json({ error: "Telegram integration disabled." }, { status: 503 });
+  }
+
   /* =======================================================
      WEBHOOK SECRET
      ======================================================= */
