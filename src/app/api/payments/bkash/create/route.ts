@@ -5,10 +5,10 @@ import {
 import {
   cookies,
 } from "next/headers";
-import { ORDER_ACCESS_COOKIE_NAME } from "@/lib/auth";
 
 import {
   readOrderAccessToken,
+  ORDER_ACCESS_COOKIE_NAME,
 } from "@/lib/auth";
 
 import {
@@ -81,7 +81,7 @@ export async function POST(
 
     const accessToken =
       cookieStore.get(
-        "kingdropp_order_access",
+        ORDER_ACCESS_COOKIE_NAME,
       )?.value;
 
     if (
