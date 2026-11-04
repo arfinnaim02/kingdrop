@@ -63,7 +63,7 @@ export async function strictRateLimit(
       "local count = redis.call('INCR', KEYS[1]); " +
       "if count == 1 then redis.call('PEXPIRE', KEYS[1], ARGV[1]); end; " +
       "return {count, redis.call('PTTL', KEYS[1])}";
-    const response = await fetch(url.toString().replace(/\\/$/, ""), {
+    const response = await fetch(url.origin, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
