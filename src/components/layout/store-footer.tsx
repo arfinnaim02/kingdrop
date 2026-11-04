@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 
 import {
   FormEvent,
@@ -55,36 +56,9 @@ type StoreFooterProps = {
    OFFICIAL STORE INFO
    ========================================================= */
 
-const STORE_ADDRESS =
-  "Shop-03, Road-08, Mirpur-02 (Opposite of Gate-2, National Cricket Stadium, Mirpur)";
-
-const STORE_MAP_URL =
-  "https://www.google.com/maps/place/Gameon+Garb";
-
-const STORE_CONTACT_EMAIL =
-  "gameongarb@gmail.com";
-
-const OFFICIAL_SOCIAL_LINKS = [
-[
-  "whatsapp",
-  "https://wa.me/8801711992409",
-],
-
-  [
-    "facebook",
-    "https://www.facebook.com/GameOnGarb",
-  ],
-
-  [
-    "instagram",
-    "https://www.instagram.com/gameon_garb/",
-  ],
-
-  [
-    "youtube",
-    "https://www.youtube.com/@gameongarb",
-  ],
-] as const;
+// Brand-specific contact/social links are withheld until KINGDROPP's
+// verified details are configured. Do not inherit Gameon Garb contacts.
+const OFFICIAL_SOCIAL_LINKS: ReadonlyArray<readonly [string, string]> = [];
 
 /* =========================================================
    HELPERS
@@ -216,28 +190,11 @@ export function StoreFooter({
     setSubmitting,
   ] = useState(false);
 
-  const contact =
-    (settings.contact ??
-      {}) as Record<
-      string,
-      unknown
-    >;
-
-  const phone =
-    String(
-      contact.phone ??
-        "",
-    ).trim();
-
-  const contactEmail =
-    STORE_CONTACT_EMAIL;
-    
-
-  const address =
-    STORE_ADDRESS;
-
-  const socialLinks =
-    OFFICIAL_SOCIAL_LINKS;
+  // Do not expose source-brand address, phone, or email from legacy seed data.
+  const phone = "";
+  const contactEmail = "";
+  const address = "";
+  const socialLinks = OFFICIAL_SOCIAL_LINKS;
 
   const footerCategories =
     navCategories.slice(
@@ -331,15 +288,13 @@ export function StoreFooter({
           </div>
 
           <p className="store-footer-description">
-            Sports, fashion and
-            everyday essentials
-            made for people who
-            live with energy.
+            Considered essentials,
+            contemporary fits and
+            confident everyday style.
           </p>
 
           <span className="store-footer-brand-line">
-            Experience The
-            Thrill.
+            {BRAND.tagline}
           </span>
 
           <div className="store-footer-contact-box">
@@ -398,46 +353,15 @@ export function StoreFooter({
                 </a>
               ) : null}
 
-              <div className="store-footer-contact-row store-footer-address-row">
-                <span className="store-footer-contact-icon">
-                  <MapPin
-                    size={15}
-                    strokeWidth={
-                      1.8
-                    }
-                  />
-                </span>
-
-                <span className="store-footer-contact-copy">
-                  <small>
-                    Visit Our Store
-                  </small>
-
-                  <strong>
-                    {address}
-                  </strong>
-
-                  <a
-                    href={
-                      STORE_MAP_URL
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="store-footer-map-link"
-                  >
-                    Open in Google Maps
-
-                    <ExternalLink
-                      size={
-                        12
-                      }
-                      strokeWidth={
-                        1.9
-                      }
-                    />
-                  </a>
-                </span>
-              </div>
+              {address ? (
+                <div className="store-footer-contact-row store-footer-address-row">
+                  <MapPin size={15} aria-hidden="true" />
+                  <span className="store-footer-contact-copy">
+                    <small>Visit Our Store</small>
+                    <strong>{address}</strong>
+                  </span>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -531,18 +455,16 @@ export function StoreFooter({
 
         <div className="store-footer-newsletter store-footer-connect">
           <span className="store-footer-newsletter-eyebrow">
-            Stay In The Game
+            The KINGDROPP Edit
           </span>
 
           <h3>
-            Join Our Movement.
+            Stay In Style.
           </h3>
 
           <p>
-            New drops,
-            members-only offers
-            and the latest from
-            GameOn Garb.
+            New arrivals, curated essentials
+            and updates from KINGDROPP.
           </p>
 
           <form
@@ -596,6 +518,7 @@ export function StoreFooter({
             </small>
           ) : null}
 
+          {socialLinks.length > 0 ? (
           <div className="store-footer-social-block">
             <span className="store-footer-social-label">
               Follow Us
@@ -644,6 +567,7 @@ export function StoreFooter({
               )}
             </div>
           </div>
+          ) : null}
         </div>
       </div>
 
@@ -654,7 +578,7 @@ export function StoreFooter({
       <div className="store-footer-credit">
         <div className="container">
           <span>
-            © 2026 GameOn Garb.
+            © {new Date().getFullYear()} {BRAND.name}.
             All rights reserved.
           </span>
         </div>
