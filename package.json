@@ -11,8 +11,9 @@
     "test": "vitest run",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "config:check": "node scripts/check-brand-isolation.mjs",
     "db:studio": "prisma studio",
-    "setup": "prisma generate && prisma migrate dev && npm run db:seed"
+    "setup": "prisma generate"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

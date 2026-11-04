@@ -90,6 +90,11 @@ export async function POST(
   request:
     Request,
 ) {
+  // Never accept order-control commands until the KINGDROPP bot is verified.
+  if (process.env.KINGDROPP_TELEGRAM_ENABLED !== "true") {
+    return NextResponse.json({ error: "Telegram integration disabled." }, { status: 503 });
+  }
+
   /* =======================================================
      WEBHOOK SECRET
      ======================================================= */
@@ -341,7 +346,7 @@ export async function POST(
 
         text:
           [
-            "🛍 <b>GameOn Garb — ORDER CONTROL</b>",
+            "🛍 <b>KINGDROPP — ORDER CONTROL</b>",
             "",
             "📋 <b>ORDER LISTS</b>",
             "",
@@ -458,7 +463,7 @@ export async function POST(
 
   /* =======================================================
      CALLBACK
-     gog:ORDER_ID:STATUS
+     kd:ORDER_ID:STATUS
      ======================================================= */
 
   const [
@@ -577,7 +582,7 @@ export async function POST(
 
   if (
     prefix !==
-      "gog" ||
+      "kd" ||
     !orderId ||
     !requestedStatus
   ) {
