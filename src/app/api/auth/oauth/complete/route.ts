@@ -26,7 +26,7 @@ import {
 } from "@/lib/db";
 
 import {
-  rateLimit,
+  strictRateLimit,
   requestIp,
 } from "@/lib/security/rate-limit";
 
@@ -52,7 +52,7 @@ export async function POST(
     );
 
   const limit =
-    rateLimit(
+    await strictRateLimit(
       `oauth-complete:${ip}`,
       10,
       60 *
