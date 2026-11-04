@@ -32,7 +32,7 @@ export async function proxy(
 
   const token =
     req.cookies.get(
-      "gog_session",
+      "kingdropp_session",
     )?.value;
 
   if (!token) {
@@ -106,7 +106,7 @@ export async function proxy(
       );
 
     response.cookies.delete(
-      "gog_session",
+      "kingdropp_session",
     );
 
     return response;
