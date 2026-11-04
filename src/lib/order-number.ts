@@ -1,19 +1,20 @@
 import type { Prisma } from "@prisma/client";
 
 const FIRST_ORDER_NUMBER = 20_260_001n;
-const ORDER_NUMBER_LOCK = 20_260_001;
+// Distinct advisory lock key for KINGDROPP transactions.
+const ORDER_NUMBER_LOCK = 20_260_002;
 
 type OrderNumberRow = {
   max_number: bigint | null;
 };
 
 /**
- * Generate the next GameOn Garb order number.
+ * Generate the next KINGDROPP order number.
  *
  * Format:
- * GOG-20260001
- * GOG-20260002
- * GOG-20260003
+ * KD-20260001
+ * KD-20260002
+ * KD-20260003
  * ...
  *
  * PostgreSQL transaction-level advisory locking serializes the
@@ -36,13 +37,13 @@ export async function nextOrderNumber(
           CAST(
             SUBSTRING(
               "number"
-              FROM '^GOG-([0-9]+)$'
+              FROM '^KD-([0-9]+)$'
             )
             AS BIGINT
           )
         ) AS "max_number"
       FROM "Order"
-      WHERE "number" ~ '^GOG-[0-9]+$'
+      WHERE "number" ~ '^KD-[0-9]+$'
     `;
 
   const current =
@@ -54,5 +55,5 @@ export async function nextOrderNumber(
       ? FIRST_ORDER_NUMBER
       : current + 1n;
 
-  return `GOG-${next.toString()}`;
+  return `KD-${next.toString()}`;
 }
