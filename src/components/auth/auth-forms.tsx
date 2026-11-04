@@ -489,7 +489,7 @@ export function RegisterForm() {
         }
       >
         By creating an account,
-        you agree to GameOn Garb&apos;s
+        you agree to KINGDROPP&apos;s
         store policies and terms.
       </p>
     </form>
