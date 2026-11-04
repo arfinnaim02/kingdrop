@@ -548,7 +548,7 @@ export function HeroSlider({
     <section
       className="premium-hero"
       aria-roledescription="carousel"
-      aria-label={`${BRAND.name} featured collections` }
+      aria-label={`${BRAND.name} featured collections`}
       style={
         heroStyle
       }
