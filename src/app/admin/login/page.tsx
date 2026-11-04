@@ -117,7 +117,7 @@ export default async function AdminLoginPage() {
             }}
           >
             Protected access
-            for GameOn Garb
+            for KINGDROPP
             store operations.
           </p>
         </div>
