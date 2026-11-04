@@ -6,9 +6,9 @@ This repository is independent from the Gameon Garb website. Treat its database,
 
 ## Current migration status
 
-Phase 1 establishes package identity, centralized brand constants, SEO defaults and a restrained neutral design-token foundation. It does **not** complete the full storefront rebrand.
+Phases 1–3A establish the brand foundation, premium storefront presentation, and admin/account/email messaging. Phase 3B introduces KD-prefixed new orders, coordinated Telegram identifiers, and guarded initial setup. Full separation is still incomplete until deployment-specific integration verification and legal/content cleanup.
 
-**Before public launch:** the logo and favicon are still placeholders from the original project pending official KINGDROPP artwork; some storefront pages, About/Terms/Privacy text, emails, admin labels, legacy order-number format, sample catalogue data and Telegram callbacks still reference the original brand. Do not deploy as a production KINGDROPP storefront until those later phases have been reviewed and implemented.
+**Before public launch:** the logo and favicon are still original placeholder assets pending official KINGDROPP artwork. Database-managed product/catalogue, campaign imagery, About/Terms/Privacy content, and any external provider setup still need review. Existing records are not rewritten by the new KD order prefix. Do not deploy as a production KINGDROPP storefront until these remaining issues and external configurations have been verified.
 
 ## Stack
 
@@ -28,7 +28,7 @@ Phase 1 establishes package identity, centralized brand constants, SEO defaults 
 6. Generate the Prisma client with `npx prisma generate`.
 7. Start the app using `npm run dev` and open `http://localhost:3000`.
 
-**Do not run `npm run db:seed` or `npm run setup` yet.** The inherited seed script still contains predictable demo administrator/customer credentials, sample products and old brand information. It must be rewritten in a later, explicitly approved phase before being used.
+**Do not run migrations or seeding against any existing database.** `npm run setup` now only generates the Prisma client. The new `npm run db:seed` is guarded, refuses non-empty databases, and requires verified KINGDROPP-specific environment variables. It never inserts demo products, orders or customers.
 
 ## Brand configuration
 
@@ -57,9 +57,32 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run config:check  # offline check; does not connect to any provider
 ```
 
 Run `npx prisma migrate deploy` **only** against an explicitly verified KINGDROPP database.
+
+## Guarded initial database setup
+
+The new `prisma/seed.ts` does not run without all of the following **manually verified** values in a private environment (never commit their real values):
+
+- `DATABASE_URL` — a **new, empty** KINGDROPP PostgreSQL database
+- `KINGDROPP_DATABASE_ISOLATED=true` — human confirmation that it is not the Gameon Garb database
+- `KINGDROPP_SEED_CONFIRM=INITIALIZE_KINGDROPP_ONLY` — explicit initialization authorization
+- `KINGDROPP_ADMIN_EMAIL` — KINGDROPP administrator email, not a demo account
+- `KINGDROPP_ADMIN_PASSWORD` — a unique password with at least 16 characters
+
+After manually checking those requirements, `npm run db:seed` creates only the initial SUPER_ADMIN and safe store settings (store offline/maintenance, COD and bKash disabled). It refuses a populated database and never overwrites accounts, orders, catalogue data, or existing settings. **This code-level guard is not proof of physical database isolation**; verify the Neon project/database and credentials yourself before execution.
+
+**Order numbers:** new orders use `KD-20260001` onward with a dedicated PostgreSQL advisory lock. Old `GOG-` records, if any, are left unchanged. This does not migrate historical order numbers.
+
+**Telegram:** button callbacks and webhook status parsing use the `kd:` prefix. Both outbound bot messages and inbound webhook handling require `KINGDROPP_TELEGRAM_ENABLED=true`; leave it unset until a separate bot token, chat ID, webhook secret and approved user list belong exclusively to KINGDROPP. Do not reuse historical callback buttons.
+
+## Offline integration verification
+
+Run `npm run config:check` in an environment where KINGDROPP variables are configured. It checks configuration presence, basic URL consistency, and common source-brand mixups, but **does not contact Neon, bKash, OAuth, Resend, Telegram or any external service**. It does not print secrets. The check is a preflight aid, not a substitute for verifying separate account ownership.
+
+Keep `BKASH_PUBLIC_ENABLED` off and `NOTIFICATION_WORKER_ENABLED` off until dedicated provider accounts and callbacks are fully tested. Configure `APP_URL` as the actual HTTPS KINGDROPP origin. Verify courier/storage/tracking settings independently.
 
 ## Before enabling integrations
 
