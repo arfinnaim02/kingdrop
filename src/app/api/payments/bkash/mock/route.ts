@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { canAccessOrder } from "@/lib/session";
 export async function POST(request: Request) {
   try {
-    if ((process.env.BKASH_MODE ?? "sandbox") === "production")
+    if (process.env.NODE_ENV === "production" || (process.env.BKASH_MODE ?? "sandbox") !== "sandbox")
       return NextResponse.json(
         { error: "Mock execution is disabled in production mode." },
         { status: 403 },
