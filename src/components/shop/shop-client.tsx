@@ -2522,7 +2522,7 @@ export function ShopClient({
           <div className={styles.discoveryHeading}>
             <div>
               <span>
-                Shop GameOn Garb
+                Shop KINGDROPP
               </span>
 
               <h2>
