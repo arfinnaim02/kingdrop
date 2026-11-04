@@ -37,13 +37,13 @@ export default function RegisterPage() {
             }
           >
             <span>
-              GameOn Garb
+              KINGDROPP
             </span>
 
             <h2>
-              Join
+              Rule
               <br />
-              The Game.
+              Your Style.
             </h2>
 
             <p>

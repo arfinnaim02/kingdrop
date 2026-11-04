@@ -643,7 +643,7 @@ async function getGoogleProfile(
     name:
       profile.name
         ?.trim() ||
-      "GameOn Garb Customer",
+      "KINGDROPP Customer",
   };
 }
 
@@ -789,7 +789,7 @@ async function getFacebookProfile(
     name:
       profile.name
         ?.trim() ||
-      "GameOn Garb Customer",
+      "KINGDROPP Customer",
   };
 }
 

@@ -275,7 +275,7 @@ export function AdminShell({
             </strong>
 
             <span>
-              GameOn Garb
+              KINGDROPP
             </span>
           </div>
         </div>
@@ -435,7 +435,7 @@ export function AdminShell({
 
             <div>
               <span className="admin-header-eyebrow">
-                GameOn Garb
+                KINGDROPP
               </span>
 
               <strong className="admin-header-page-title">

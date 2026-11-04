@@ -1,3 +1,5 @@
+import { BRAND, getPublicSiteUrl } from "@/lib/brand";
+
 import type {
   NotificationDelivery,
 } from "@prisma/client";
@@ -122,52 +124,20 @@ function escapeHtml(
 }
 
 function siteUrl() {
-  return (
-    process.env
-      .NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env
-      .SITE_URL?.trim() ||
-    "https://gameongarb-next.vercel.app"
-  ).replace(
-    /\/$/,
-    "",
-  );
+  return getPublicSiteUrl() ?? "";
 }
 
-function absoluteUrl(
-  value:
-    string,
-) {
-  if (
-    /^https?:\/\//i.test(
-      value,
-    )
-  ) {
-    return value;
-  }
-
-  const normalized =
-    value.startsWith(
-      "/",
-    )
-      ? value
-      : `/${value}`;
-
-  return `${siteUrl()}${normalized}`;
+function absoluteUrl(value: string) {
+  if (/^https:\/\//i.test(value)) return value;
+  const relative = value.startsWith("/") ? value : `/${value}`;
+  const base = siteUrl();
+  return base ? `${base}${relative}` : "";
 }
 
-function logoUrl() {
-  const configured =
-    process.env
-      .EMAIL_LOGO_URL?.trim();
-
-  return configured
-    ? absoluteUrl(
-        configured,
-      )
-    : absoluteUrl(
-        "/images/brand/gameongarb-email-logo.png?v=20261101-clean1",
-      );
+function logoUrl(): string {
+  const configured = process.env.EMAIL_LOGO_URL?.trim();
+  if (!configured || /game[ -]?on[ -]?garb|gameongarb/i.test(configured)) return "";
+  return absoluteUrl(configured);
 }
 
 function formatEventTitle(
@@ -194,7 +164,7 @@ function formatEventTitle(
         title:
           "Your order is confirmed.",
         accent:
-          "We’re preparing your Game On Garb order.",
+          "We’re preparing your KINGDROPP order.",
       };
 
     case "ORDER_READY_TO_SHIP":
@@ -214,7 +184,7 @@ function formatEventTitle(
         title:
           "Your order has been shipped.",
         accent:
-          "Your Game On Garb order is on the way.",
+          "Your KINGDROPP order is on the way.",
       };
 
     case "ORDER_DELIVERED":
@@ -224,7 +194,7 @@ function formatEventTitle(
         title:
           "Your order has arrived.",
         accent:
-          "Thank you for shopping with Game On Garb.",
+          "Thank you for shopping with KINGDROPP.",
       };
 
     case "ORDER_CANCELLED":
@@ -244,7 +214,7 @@ function formatEventTitle(
         title:
           "We couldn’t complete delivery.",
         accent:
-          "Please contact Game On Garb if you need assistance.",
+          "Please contact KINGDROPP if you need assistance.",
       };
 
     default:
@@ -254,7 +224,7 @@ function formatEventTitle(
         title:
           "There’s an update on your order.",
         accent:
-          "Thank you for choosing Game On Garb.",
+          "Thank you for choosing KINGDROPP.",
       };
   }
 }
@@ -287,7 +257,7 @@ export function renderNotificationEmail(
   const message =
     textValue(
       payload.message,
-      "You have a new update from Game On Garb.",
+      "You have a new update from KINGDROPP.",
     );
 
   const status =
@@ -354,8 +324,8 @@ export function renderNotificationEmail(
     delivery.subject ??
     (
       orderNumber
-        ? `Game On Garb | ${orderNumber}`
-        : "Game On Garb Notification"
+        ? `KINGDROPP | ${orderNumber}`
+        : "KINGDROPP Notification"
     );
 
   const eventCopy =
@@ -414,11 +384,11 @@ export function renderNotificationEmail(
           : paymentStatus;
 
   const trackUrl =
-    orderNumber
+    orderNumber && siteUrl()
       ? `${siteUrl()}/track-order?order=${encodeURIComponent(
           orderNumber,
         )}`
-      : siteUrl();
+      : "";
 
   const itemRows =
     items
@@ -615,12 +585,12 @@ export function renderNotificationEmail(
       ? `Delivery address: ${shippingAddress}`
       : "",
     "",
-    orderNumber
+    trackUrl
       ? `Track order: ${trackUrl}`
       : "",
     "",
-    "Game On Garb",
-    "Experience The Thrill",
+    "KINGDROPP",
+    "Rule Your Style",
   ]
     .filter(
       Boolean,
@@ -651,22 +621,17 @@ export function renderNotificationEmail(
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;max-width:640px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e8e3dd;box-shadow:0 8px 30px rgba(20,16,12,.06);">
 
                 <tr>
-                  <td align="center" style="padding:16px 24px 14px;background:#ffffff;border-bottom:4px solid #e85d04;">
-                    <img
-                      src="${escapeHtml(
-                        logoUrl(),
-                      )}"
-                      alt="Game On Garb"
-                      width="500"
-                      style="display:block;width:500px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"
-                    >
+                  <td align="center" style="padding:18px 24px;background:#ffffff;border-bottom:3px solid #665a4d;">
+                    ${logoUrl()
+                      ? `<img src="${escapeHtml(logoUrl())}" alt="${BRAND.name}" width="320" style="display:block;max-width:100%;height:auto;border:0;">`
+                      : `<div style="font-size:26px;font-weight:800;letter-spacing:2px;color:#141414;">${BRAND.name}</div><div style="margin-top:7px;font-size:11px;letter-spacing:1.5px;color:#665a4d;">${BRAND.tagline}</div>`}
                   </td>
                 </tr>
 
                 <tr>
                   <td style="padding:34px 28px 10px;">
 
-                    <div style="font-size:11px;line-height:1.3;font-weight:900;letter-spacing:1.8px;color:#e85d04;">
+                    <div style="font-size:11px;line-height:1.3;font-weight:900;letter-spacing:1.8px;color:#665a4d;">
                       ${escapeHtml(
                         eventCopy.eyebrow,
                       )}
@@ -782,7 +747,7 @@ export function renderNotificationEmail(
 
                       <tr>
                         <td style="padding:16px 18px;border-top:1px solid #e5ded6;font-size:15px;font-weight:900;">TOTAL</td>
-                        <td align="right" style="padding:16px 18px;border-top:1px solid #e5ded6;font-size:21px;font-weight:900;color:#e85d04;">${formatMoney(
+                        <td align="right" style="padding:16px 18px;border-top:1px solid #e5ded6;font-size:21px;font-weight:900;color:#665a4d;">${formatMoney(
                           total,
                         )}</td>
                       </tr>
@@ -872,13 +837,13 @@ export function renderNotificationEmail(
                   `
                   : ""}
 
-                ${orderNumber
+                ${trackUrl
                   ? `
                     <tr>
                       <td align="center" style="padding:30px 28px 4px;">
                         <table cellpadding="0" cellspacing="0" role="presentation">
                           <tr>
-                            <td align="center" style="border-radius:8px;background:#e85d04;">
+                            <td align="center" style="border-radius:8px;background:#665a4d;">
                               <a href="${escapeHtml(
                                 trackUrl,
                               )}" style="display:inline-block;padding:14px 26px;font-size:13px;font-weight:900;letter-spacing:.5px;color:#ffffff;text-decoration:none;">
@@ -903,11 +868,11 @@ export function renderNotificationEmail(
                 <tr>
                   <td align="center" style="padding:22px 28px;background:#0b0b0b;border-top:1px solid #242424;">
                     <div style="font-size:12px;font-weight:800;color:#ffffff;">
-                      Game On Garb
+                      ${BRAND.name}
                     </div>
 
-                    <div style="margin-top:5px;font-size:10px;letter-spacing:1.3px;color:#e85d04;">
-                      EXPERIENCE THE THRILL
+                    <div style="margin-top:5px;font-size:10px;letter-spacing:1.3px;color:#665a4d;">
+                      ${BRAND.tagline}
                     </div>
 
                     <div style="margin-top:12px;font-size:10px;line-height:1.6;color:#777777;">
@@ -968,7 +933,7 @@ export function renderNotificationSms(
 
     message:
       [
-        "GameOn Garb:",
+        "KINGDROPP:",
         message,
 
         orderNumber
