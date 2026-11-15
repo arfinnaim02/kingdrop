@@ -400,8 +400,8 @@ export default async function BlogPostPage({
             </span>
 
             <strong>
-              Experience the
-              thrill.
+              Rule Your
+              Style.
             </strong>
 
             <Link
