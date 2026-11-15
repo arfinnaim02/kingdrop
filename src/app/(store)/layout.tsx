@@ -108,7 +108,7 @@ export default async function StoreLayout({
         <section className="store-maintenance">
           <div className="container store-maintenance-inner">
             <div className="eyebrow">
-              GameOn Garb
+              KINGDROPP
             </div>
 
             <h1 className="display store-maintenance-title">
