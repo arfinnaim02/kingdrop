@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 
 export function Logo({
   admin = false,
@@ -16,13 +17,13 @@ export function Logo({
       className="brand-logo"
       aria-label={
         admin
-          ? "GameOn Garb Admin"
-          : "GameOn Garb Home"
+          ? `${BRAND.name} Admin`
+          : `${BRAND.name} Home`
       }
     >
       <Image
         src="/brand/game-on-garb-logo.svg"
-        alt="GameOn Garb - Experience The Thrill"
+        alt=""
         width={587}
         height={375}
         className="brand-logo-image"

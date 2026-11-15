@@ -6,9 +6,9 @@ This repository is independent from the Gameon Garb website. Treat its database,
 
 ## Current migration status
 
-Phases 1–3A establish the brand foundation, premium storefront presentation, and admin/account/email messaging. Phase 3B introduces KD-prefixed new orders, coordinated Telegram identifiers, and guarded initial setup. Full separation is still incomplete until deployment-specific integration verification and legal/content cleanup.
+Phases 1–4B establish the brand foundation, premium storefront, operational separation and launch-safety controls. Phase 4C cleans inherited public copy and contact links and prepares legal drafts. Deployment-specific provider verification, official brand artwork and final policy sign-off remain outstanding.
 
-**Before public launch:** the logo and favicon are still original placeholder assets pending official KINGDROPP artwork. Database-managed product/catalogue, campaign imagery, About/Terms/Privacy content, and any external provider setup still need review. Existing records are not rewritten by the new KD order prefix. Do not deploy as a production KINGDROPP storefront until these remaining issues and external configurations have been verified.
+**Before public launch:** the logo and favicon are still original placeholder assets pending official KINGDROPP artwork. Database-managed products, campaign imagery, final legal policy approvals, verified business contacts and external provider setup still need review. Existing records are not rewritten by the new KD order prefix. Do not deploy as a production KINGDROPP storefront until these remaining issues and external configurations have been verified.
 
 ## Stack
 
@@ -109,3 +109,13 @@ Never commit production secrets or customer data.
 ## Repository and review workflow
 
 All KINGDROPP updates require discussion and explicit approval. Implement changes on a feature branch for review, and do not merge to `main` until reviewed. The separate Gameon Garb repository must remain untouched.
+
+## Phase 4C — verified brand contacts and legal drafts
+
+The About, Contact, generic information, privacy and terms pages no longer inherit original Gameon Garb business details. Public contact information comes only from `src/lib/public-business-contact.ts`. It defaults to empty until `KINGDROPP_CONTACTS_VERIFIED=true` and the independently verified `KINGDROPP_CONTACT_*`, `KINGDROPP_MAP_URL`, `KINGDROPP_WHATSAPP_URL` and social URLs are populated. Unverified and recognizable old-brand values are filtered out. The production website must not display an unverified physical shop.
+
+The `/terms`, `/privacy-policy` and `/returns` pages contain **clearly labeled working drafts**, not approved final policies. The business owner and appropriate legal reviewer must confirm operator identity, customer contact, delivery, returns, refunds, actual data processors, retention, user rights, applicable consumer law and effective dates **before launch**. Never represent those drafts as adopted terms without approval.
+
+The sitemap includes `/size-guide` and uses actual page routes; unapproved `/terms`, `/privacy-policy` and `/returns` drafts are deliberately omitted and marked `noindex` until legal sign-off. Static assets `public/brand/game-on-garb-logo.svg` and `src/app/icon.png` remain **unchanged** awaiting official KINGDROPP artwork. The shared logo's link accessibility label is updated, but it still visually displays the inherited placeholder; replacing it requires separate approval. Do not publish the storefront as a finished KINGDROPP website until that is resolved.
+
+Phase 4C performs source changes only: no database, payment, hosting, account or third-party service is modified.
