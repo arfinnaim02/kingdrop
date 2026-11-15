@@ -50,7 +50,7 @@ function getOrderNotificationCopy(
     case NotificationEvent.ORDER_PLACED:
       return {
         subject:
-          `Game On Garb | Order Received — ${orderNumber}`,
+          `KINGDROPP | Order Received — ${orderNumber}`,
 
         message:
           "We have received your order and will review it shortly.",
@@ -59,7 +59,7 @@ function getOrderNotificationCopy(
     case NotificationEvent.ORDER_CONFIRMED:
       return {
         subject:
-          `Game On Garb | Order Confirmed — ${orderNumber}`,
+          `KINGDROPP | Order Confirmed — ${orderNumber}`,
 
         message:
           "Your order has been confirmed and is now being prepared.",
@@ -68,7 +68,7 @@ function getOrderNotificationCopy(
     case NotificationEvent.ORDER_READY_TO_SHIP:
       return {
         subject:
-          `Game On Garb | Ready to Ship — ${orderNumber}`,
+          `KINGDROPP | Ready to Ship — ${orderNumber}`,
 
         message:
           "Your order is packed and ready to be handed over to the courier.",
@@ -77,7 +77,7 @@ function getOrderNotificationCopy(
     case NotificationEvent.ORDER_SHIPPED:
       return {
         subject:
-          `Game On Garb | Your Order Is on the Way — ${orderNumber}`,
+          `KINGDROPP | Your Order Is on the Way — ${orderNumber}`,
 
         message:
           "Your order has been shipped and is on the way.",
@@ -86,16 +86,16 @@ function getOrderNotificationCopy(
     case NotificationEvent.ORDER_DELIVERED:
       return {
         subject:
-          `Game On Garb | Order Delivered — ${orderNumber}`,
+          `KINGDROPP | Order Delivered — ${orderNumber}`,
 
         message:
-          "Your order has been delivered successfully. Thank you for shopping with GameOn Garb.",
+          "Your order has been delivered successfully. Thank you for shopping with KINGDROPP.",
       };
 
     case NotificationEvent.ORDER_CANCELLED:
       return {
         subject:
-          `Game On Garb | Order Cancelled — ${orderNumber}`,
+          `KINGDROPP | Order Cancelled — ${orderNumber}`,
 
         message:
           "Your order has been cancelled.",
@@ -104,10 +104,10 @@ function getOrderNotificationCopy(
     case NotificationEvent.ORDER_FAILED_DELIVERY:
       return {
         subject:
-          `Game On Garb | Delivery Update — ${orderNumber}`,
+          `KINGDROPP | Delivery Update — ${orderNumber}`,
 
         message:
-          "The courier could not complete your delivery. Please contact GameOn Garb if you need assistance.",
+          "The courier could not complete your delivery. Please contact KINGDROPP if you need assistance.",
       };
   }
 }
