@@ -122,7 +122,7 @@ const DEFAULT_VALUE:
         "Offers",
 
       text:
-        "Up to 30% discount on selected products",
+        "Discover the latest KINGDROPP essentials",
 
       ctaLabel:
         "Shop Now",
@@ -142,7 +142,7 @@ const DEFAULT_VALUE:
         "New Drop",
 
       text:
-        "Fresh arrivals are now live",
+        "Explore KINGDROPP new arrivals",
 
       ctaLabel:
         "Explore",
@@ -162,7 +162,7 @@ const DEFAULT_VALUE:
         "Delivery",
 
       text:
-        "Inside Dhaka delivery ৳80",
+        "Delivery charges are shown at checkout",
 
       ctaLabel:
         "Shop Now",
