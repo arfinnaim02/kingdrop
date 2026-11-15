@@ -3014,7 +3014,7 @@ const outsideDhakaCod =
                 }
               >
                 New customer — no previous
-                GameOn Garb orders.
+                KINGDROPP orders.
               </div>
             )}
           </section>
