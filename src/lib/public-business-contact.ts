@@ -46,9 +46,10 @@ export function getPublicBusinessContacts(): PublicBusinessContacts {
     ["Instagram", process.env.KINGDROPP_INSTAGRAM_URL],
     ["YouTube", process.env.KINGDROPP_YOUTUBE_URL],
     ["TikTok", process.env.KINGDROPP_TIKTOK_URL],
-  ] as const)
-    .map(([label, value]) => ({ label, href: safeUrl(value) }))
-    .filter((item): item is { label: string; href: string } => item.href !== null);
+  ] as const).flatMap(([label, value]) => {
+    const href = safeUrl(value);
+    return href ? [{ label: String(label), href }] : [];
+  });
 
   return {
     email: email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null,
