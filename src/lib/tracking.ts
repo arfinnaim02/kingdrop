@@ -56,7 +56,7 @@ declare global {
         unknown[]
     ) => void;
 
-    __GOG_TRACKING_CONFIG__?:
+    __KINGDROPP_TRACKING_CONFIG__?:
       TrackingConfig;
   }
 }
@@ -75,7 +75,7 @@ function getConfig() {
 
   return (
     window
-      .__GOG_TRACKING_CONFIG__ ??
+      .__KINGDROPP_TRACKING_CONFIG__ ??
     null
   );
 }
