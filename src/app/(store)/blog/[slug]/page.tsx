@@ -4,6 +4,7 @@ import type {
 
 import Image from "next/image";
 import Link from "next/link";
+import { BRAND, getPublicSiteUrl } from "@/lib/brand";
 
 import {
   ArrowLeft,
@@ -63,7 +64,7 @@ export async function generateMetadata({
   ) {
     return {
       title:
-        "Blog | GameOn Garb",
+        `Blog | ${BRAND.name}`,
     };
   }
 
@@ -238,8 +239,7 @@ export default async function BlogPostPage({
     );
 
   const base =
-    process.env.APP_URL ??
-    "https://www.gameongarb.com";
+    getPublicSiteUrl();
 
   const articleSchema = {
     "@context":
@@ -274,7 +274,7 @@ export default async function BlogPostPage({
         "WebPage",
 
       "@id":
-        `${base}/blog/${post.slug}`,
+        base ? `${base}/blog/${post.slug}` : `/blog/${post.slug}`,
     },
 
     publisher: {
@@ -282,18 +282,9 @@ export default async function BlogPostPage({
         "Organization",
 
       name:
-        "GameOn Garb",
+        BRAND.name,
 
-      url:
-        base,
-
-      logo: {
-        "@type":
-          "ImageObject",
-
-        url:
-          `${base}/images/brand/gameongarb-email-logo.png`,
-      },
+      ...(base ? { url: base } : {}),
     },
   };
 
@@ -333,7 +324,7 @@ export default async function BlogPostPage({
             >
               <span>
                 {post.category ||
-                  "GameOn Garb Journal"}
+                  `${BRAND.name} Journal`}
               </span>
 
               <span>
@@ -405,7 +396,7 @@ export default async function BlogPostPage({
             }
           >
             <span>
-              GameOn Garb
+              KINGDROPP
             </span>
 
             <strong>
