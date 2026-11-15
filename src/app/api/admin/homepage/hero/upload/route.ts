@@ -108,8 +108,8 @@ export async function POST(
 
     const folder =
       variant === "mobile"
-        ? "game-on-garb/homepage/hero/mobile"
-        : "game-on-garb/homepage/hero/desktop";
+        ? "kingdropp/homepage/hero/mobile"
+        : "kingdropp/homepage/hero/desktop";
 
     const result =
       await new Promise<UploadApiResponse>(
