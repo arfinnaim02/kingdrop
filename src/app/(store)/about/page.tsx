@@ -72,7 +72,7 @@ const VALUES = [
       "Modern Style",
 
     body:
-      "Our collections bring together sports culture, streetwear energy and everyday versatility.",
+      "Our collections focus on clean silhouettes, considered details and effortless everyday style.",
   },
   {
     icon:
@@ -115,14 +115,14 @@ const EXPERIENCE = [
       "Flexible Payment",
 
     value:
-      "Cash on Delivery and bKash",
+      "Methods shown at checkout",
   },
   {
     icon:
       Truck,
 
     label:
-      "Nationwide Delivery",
+      "Delivery Information",
 
     value:
       "Inside and outside Dhaka",
@@ -199,7 +199,7 @@ export default function AboutPage() {
             <strong>
               Rule Your
               <br />
-              The Thrill.
+              Style.
             </strong>
 
             <p>
@@ -230,31 +230,25 @@ export default function AboutPage() {
 
           <div className={styles.storyCopy}>
             <p>
-              KINGDROPP is a
-              Bangladesh-based sports,
-              fashion and lifestyle
-              brand created for people
-              who want comfort, energy
-              and modern style in the
-              same wardrobe.
+              KINGDROPP is focused on
+              premium men's fashion,
+              contemporary fits and
+              everyday essentials
+              with a refined point of view.
             </p>
 
             <p>
-              Our collections move
-              across sneakers,
-              football jerseys,
-              sportswear, polo shirts,
-              drop-shoulder styles,
-              baggy trousers and other
-              everyday essentials. The
-              goal is simple: make
-              pieces that look good,
-              feel comfortable and fit
-              naturally into real life.
+              We start with timeless
+              wardrobe staples and
+              explore modern styles
+              designed to work with
+              everyday outfits. Browse
+              the current collection
+              for available options.
             </p>
 
             <p>
-              From match day to
+              From casual days to
               everyday wear, we want
               KINGDROPP to feel
               active, confident and
@@ -324,19 +318,17 @@ export default function AboutPage() {
             </span>
 
             <h2>
-              Sports energy.
-              Everyday versatility.
+              Modern essentials.
+              Everyday confidence.
             </h2>
 
             <p>
-              Explore sneakers,
-              football jerseys,
-              sportswear, polos,
-              drop shoulders, baggy
-              trousers and lifestyle
-              pieces selected for the
-              modern Bangladesh
-              customer.
+              Discover the styles
+              currently available in
+              our collection, with
+              an emphasis on clean
+              fits and versatile
+              everyday clothing.
             </p>
 
             <Link
@@ -354,34 +346,33 @@ export default function AboutPage() {
           <div className={styles.categoryStack}>
             <div>
               <strong>
-                Sneakers
+                Everyday Tees
               </strong>
 
               <span>
-                Everyday comfort,
-                street-ready style and
-                pairs built to lead the
-                rotation.
+                Comfortable fits
+                designed for daily
+                rotation and easy styling.
               </span>
             </div>
 
             <div>
               <strong>
-                Football &
-                Sports
+                Contemporary
+                Fits
               </strong>
 
               <span>
-                Match-day spirit,
-                performance influence
-                and fan culture.
+                A focus on fit,
+                proportion and easy
+                personal expression.
               </span>
             </div>
 
             <div>
               <strong>
-                Casual &
-                Streetwear
+                Modern
+                Casualwear
               </strong>
 
               <span>
@@ -461,12 +452,12 @@ export default function AboutPage() {
               </span>
 
               <strong>
-                ৳80
+                At checkout
               </strong>
 
               <small>
-                Standard delivery
-                charge
+                Calculated from
+                your address
               </small>
             </div>
 
@@ -476,12 +467,12 @@ export default function AboutPage() {
               </span>
 
               <strong>
-                ৳150
+                At checkout
               </strong>
 
               <small>
-                Standard delivery
-                charge
+                Calculated from
+                your address
               </small>
             </div>
 
@@ -492,11 +483,10 @@ export default function AboutPage() {
               />
 
               <p>
-                Delivery is available
-                across Bangladesh.
-                Final availability and
-                charges are confirmed
-                during checkout.
+                Review available
+                delivery areas and
+                the final shipping
+                charge during checkout.
               </p>
             </div>
           </div>
