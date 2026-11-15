@@ -3,6 +3,7 @@ import { BRAND } from "@/lib/brand";
 import { getPublicBusinessContacts } from "@/lib/public-business-contact";
 
 export const metadata = {
+  robots: { index: false, follow: true },
   title: `Terms & Conditions | ${BRAND.name}`,
   description: "Review KINGDROPP's draft terms for orders, payments, delivery, accounts and returns.",
 };
