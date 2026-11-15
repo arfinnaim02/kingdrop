@@ -1802,7 +1802,7 @@ export function InventoryManager({
 
   function downloadRestockTemplate() {
     downloadCsv(
-      `game-on-garb-restock-template-${new Date()
+      `kingdropp-restock-template-${new Date()
         .toISOString()
         .slice(
           0,
@@ -1841,7 +1841,7 @@ export function InventoryManager({
 
   function downloadInventory() {
     downloadCsv(
-      `game-on-garb-inventory-${new Date()
+      `kingdropp-inventory-${new Date()
         .toISOString()
         .slice(
           0,
@@ -1892,7 +1892,7 @@ export function InventoryManager({
 
   function downloadHistory() {
     downloadCsv(
-      `game-on-garb-inventory-history-${new Date()
+      `kingdropp-inventory-history-${new Date()
         .toISOString()
         .slice(
           0,
