@@ -18120,3 +18120,31 @@ hr {
     margin-bottom: 8px;
   }
 }
+
+
+
+/* KINGDROPP — Primary Header Logo */
+
+.store-logo-wrap .brand-logo-image {
+  display: block;
+  width: 165px;
+  height: auto;
+  max-height: 68px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+/* Mobile Header */
+
+@media (max-width: 767px) {
+  .store-logo-wrap .brand-logo-image {
+    width: 125px;
+    max-height: 56px;
+    object-position: center;
+  }
+
+  .mobile-menu-header .brand-logo-image {
+    width: 145px;
+    height: auto;
+  }
+}
