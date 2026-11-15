@@ -48,6 +48,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { content } = await params;
   if (content === "contact") return { title: `Contact | ${BRAND.name}` };
+  if (content === "returns") return { title: `Returns — Draft | ${BRAND.name}`, robots: { index: false, follow: true } };
   return { title: `${pages[content]?.title ?? "Page"} | ${BRAND.name}` };
 }
 
