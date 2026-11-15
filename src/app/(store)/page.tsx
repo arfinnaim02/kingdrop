@@ -584,7 +584,7 @@ function Hero({
           image:
             firstSlide?.image ??
             section.image ??
-            "/images/campaigns/hero.svg",
+            "/images/products/tshirt.svg",
 
           ctaLabel:
             firstSlide?.ctaLabel ??
