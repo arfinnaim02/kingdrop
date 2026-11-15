@@ -58,10 +58,10 @@ type FormState = {
 
 const EMPTY_FORM: FormState = {
   heading:
-    "Experience the thrill.",
+    "Rule Your Style.",
 
   subtitle:
-    "More than what you wear. It’s a movement. It’s a mindset.",
+    "Contemporary menswear designed for effortless everyday confidence.",
 
   image: "",
 
@@ -361,7 +361,7 @@ export function BrandStoryManager() {
       }
 
       setMessage(
-        "Experience the Thrill section updated successfully.",
+        "KINGDROPP Brand Story updated successfully.",
       );
 
       await loadSection();
@@ -780,7 +780,7 @@ export function BrandStoryManager() {
 
               <h2>
                 {form.heading ||
-                  "Experience the thrill."}
+                  "Rule Your Style."}
               </h2>
 
               {form.subtitle ? (
