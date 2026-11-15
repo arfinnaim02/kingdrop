@@ -130,7 +130,7 @@ export async function POST(
               .upload_stream(
                 {
                   folder:
-                    "game-on-garb/homepage/promotion-popup",
+                    "kingdropp/homepage/promotion-popup",
 
                   resource_type:
                     "image",
