@@ -170,7 +170,7 @@ export async function POST(
             cloudinary.uploader.upload_stream(
               {
                 folder:
-                  `game-on-garb/homepage/${campaign}/${variant}`,
+                  `kingdropp/homepage/${campaign}/${variant}`,
 
                 resource_type:
                   "image",

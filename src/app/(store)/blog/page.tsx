@@ -29,7 +29,7 @@ export const metadata:
     "Blog",
 
   description:
-    "Style guides, jersey care, sportswear tips and stories from GameOn Garb.",
+    "Explore KINGDROPP style guides, menswear essentials and wardrobe inspiration.",
 
   alternates: {
     canonical:
@@ -38,10 +38,10 @@ export const metadata:
 
   openGraph: {
     title:
-      "GameOn Garb Blog",
+      "KINGDROPP Journal",
 
     description:
-      "Style guides, jersey care, sportswear tips and stories from GameOn Garb.",
+      "Explore KINGDROPP style guides, menswear essentials and wardrobe inspiration.",
 
     url:
       "/blog",
@@ -132,7 +132,7 @@ export default async function BlogPage() {
               styles.eyebrow
             }
           >
-            GameOn Garb Journal
+            KINGDROPP Journal
           </span>
 
           <h1>
@@ -216,7 +216,7 @@ export default async function BlogPage() {
 
               <p>
                 {featured.excerpt ||
-                  "Read the latest from GameOn Garb."}
+                  "Read the latest from KINGDROPP."}
               </p>
 
               <div
@@ -247,7 +247,7 @@ export default async function BlogPage() {
             <p>
               Check back soon for
               guides and updates
-              from GameOn Garb.
+              from KINGDROPP.
             </p>
           </div>
         )}

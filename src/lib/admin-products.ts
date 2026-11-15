@@ -162,7 +162,7 @@ export const productEditorSchema =
           .trim()
           .max(120)
           .default(
-            "GameOn Garb",
+            "KINGDROPP",
           ),
 
       regularPrice:
@@ -588,7 +588,7 @@ export function serializeAdminProduct(
 
     brand:
       product.brand ??
-      "GameOn Garb",
+      "KINGDROPP",
 
     regularPrice:
       Number(

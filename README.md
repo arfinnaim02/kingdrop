@@ -119,3 +119,16 @@ The `/terms`, `/privacy-policy` and `/returns` pages contain **clearly labeled w
 The sitemap includes `/size-guide` and uses actual page routes; unapproved `/terms`, `/privacy-policy` and `/returns` drafts are deliberately omitted and marked `noindex` until legal sign-off. Static assets `public/brand/game-on-garb-logo.svg` and `src/app/icon.png` remain **unchanged** awaiting official KINGDROPP artwork. The shared logo's link accessibility label is updated, but it still visually displays the inherited placeholder; replacing it requires separate approval. Do not publish the storefront as a finished KINGDROPP website until that is resolved.
 
 Phase 4C performs source changes only: no database, payment, hosting, account or third-party service is modified.
+
+
+## Phase 4D — source-level brand isolation (draft)
+
+- Future product inserts default to `KINGDROPP` in Prisma, admin APIs, and product management. The migration `20261115130000_kingdropp_product_brand_default` changes the database **column default only**; it does **not** update any existing product records. It must be applied only to the verified isolated KINGDROPP database in an authorized deployment step.
+- Public product/blog SEO and JSON-LD defaults no longer reference the original domain, brand or email-logo asset.
+- Admin preview labels, order notifications, searchable UI copy, CSV export filenames and campaign defaults have KINGDROPP wording.
+- New Cloudinary uploads use `kingdropp/` folder paths. Cleanup routines now refuse to delete public IDs outside this namespace, preserving legacy or unrelated assets. **Nothing was moved or deleted**; existing image public IDs and URLs are unchanged, and a separate KINGDROPP Cloudinary account must be validated before enabling uploads.
+- The homepage hero fallback now uses the existing neutral clothing illustration `/images/products/tshirt.svg` instead of the inherited `GAME ON` campaign image. Official campaign artwork remains a launch blocker.
+- The old source image assets (including logo, favicon, email-logo and campaign image) are intentionally untouched. Their presence in the repository is **not** approval for public KINGDROPP usage.
+- Legacy internal `gog-` storage keys, `__GOG_TRACKING_CONFIG__` and cart drawer identifiers remain unchanged for compatibility; they are not public labels. Renaming them needs a separately tested migration strategy to avoid losing browser cart/wishlist state or breaking tracking.
+- Database-managed products, existing homepage sections, hero slides, banners, store settings and blogs were **not queried or modified**. Their branding must be audited against the isolated Neon database before launch.
+- Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, and review the isolated migration status before PR approval. No build or integration tests were executed through the GitHub connector. The legal drafts and official artwork also require sign-off.

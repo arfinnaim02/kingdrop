@@ -51,7 +51,7 @@ export default async function SocialCompletePage() {
               has been verified.
               Add your phone number
               to finish creating
-              your GameOn Garb
+              your KINGDROPP
               account.
             </p>
           </div>

@@ -293,7 +293,7 @@ model Product {
   slug             String              @unique
   shortDescription String?
   description      String?
-  brand            String?             @default("GameOn Garb")
+  brand            String?             @default("KINGDROPP")
   regularPrice     Decimal             @db.Decimal(12, 2)
   salePrice        Decimal?            @db.Decimal(12, 2)
   status           ProductStatus       @default(DRAFT)

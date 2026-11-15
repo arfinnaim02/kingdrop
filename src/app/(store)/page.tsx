@@ -223,7 +223,7 @@ export default async function Home() {
           return (
             <Campaign
               key={section.id}
-              eyebrow="Sports"
+              eyebrow="KINGDROPP Edit"
               title={
                 section.heading ??
                 "Made for the moment."
@@ -234,7 +234,7 @@ export default async function Home() {
               }
               link={
                 section.ctaLink ??
-                "/shop?category=sports"
+                "/shop"
               }
               cta={
                 section.ctaLabel ??
@@ -253,7 +253,7 @@ export default async function Home() {
           return (
             <Campaign
               key={section.id}
-              eyebrow="Polo"
+              eyebrow="Everyday Essentials"
               title={
                 section.heading ??
                 "Refined essentials."
@@ -264,7 +264,7 @@ export default async function Home() {
               }
               link={
                 section.ctaLink ??
-                "/shop?category=polo"
+                "/shop"
               }
               cta={
                 section.ctaLabel ??
@@ -584,7 +584,7 @@ function Hero({
           image:
             firstSlide?.image ??
             section.image ??
-            "/images/campaigns/hero.svg",
+            "/images/products/tshirt.svg",
 
           ctaLabel:
             firstSlide?.ctaLabel ??

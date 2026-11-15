@@ -439,7 +439,7 @@ function emptyForm(
     slug: "",
 
     brand:
-      "GameOn Garb",
+      "KINGDROPP",
 
     shortDescription:
       "",

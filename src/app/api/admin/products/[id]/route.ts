@@ -1,3 +1,4 @@
+import { isKingdroppManagedPublicId } from "@/lib/cloudinary-namespace";
 import {
   NextResponse,
 } from "next/server";
@@ -250,7 +251,7 @@ export async function PATCH(
 
               brand:
                 input.brand ||
-                "GameOn Garb",
+                "KINGDROPP",
 
               regularPrice:
                 input.regularPrice,
@@ -606,7 +607,7 @@ export async function PATCH(
      * Cloudinary cleanup is best-effort.
      */
     await Promise.allSettled(
-      removedPublicIds.map(
+      removedPublicIds.filter(isKingdroppManagedPublicId).map(
         (
           publicId,
         ) =>
@@ -829,6 +830,7 @@ export async function DELETE(
               value,
             ),
         )
+        .filter(isKingdroppManagedPublicId)
         .map(
           (
             publicId,

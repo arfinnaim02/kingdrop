@@ -1125,7 +1125,7 @@ export function ReportsManager({
       url;
 
     anchor.download =
-      `game-on-garb-report-${new Date()
+      `kingdropp-report-${new Date()
         .toISOString()
         .slice(
           0,

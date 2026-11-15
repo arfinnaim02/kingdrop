@@ -1,3 +1,4 @@
+import { isKingdroppManagedPublicId } from "@/lib/cloudinary-namespace";
 import {
   revalidatePath,
 } from "next/cache";
@@ -60,13 +61,13 @@ function getCampaignDefinition(
       type: "SPORTS",
       name: "Sports",
       heading:
-        "Built to move.",
+        "Everyday confidence.",
       subtitle:
-        "Performance for every day.",
+        "Versatile essentials for your daily rotation.",
       ctaLabel:
-        "Explore Sports",
+        "Explore KINGDROPP",
       ctaLink:
-        "/shop?category=sports",
+        "/shop",
       sortOrder: 2,
     };
   }
@@ -79,13 +80,13 @@ function getCampaignDefinition(
       type: "POLO",
       name: "Polo",
       heading:
-        "Made for every day.",
+        "Rule Your Style.",
       subtitle:
-        "Polished, relaxed and ready.",
+        "Premium fits. Effortless confidence.",
       ctaLabel:
-        "Explore Polo",
+        "Shop the Collection",
       ctaLink:
-        "/shop?category=polo",
+        "/shop",
       sortOrder: 3,
     };
   }
@@ -158,7 +159,7 @@ async function safelyDelete(
     | null
     | undefined,
 ) {
-  if (!publicId) {
+  if (!isKingdroppManagedPublicId(publicId)) {
     return;
   }
 

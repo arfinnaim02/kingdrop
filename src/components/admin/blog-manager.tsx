@@ -649,7 +649,7 @@ export function BlogManager({
           <p>
             Publish search-friendly
             editorial content for
-            Game On Garb.
+            KINGDROPP.
           </p>
         </div>
 

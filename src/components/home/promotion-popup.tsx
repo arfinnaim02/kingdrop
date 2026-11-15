@@ -14,7 +14,7 @@ import {
 import styles from "./promotion-popup.module.css";
 
 const SESSION_KEY =
-  "gog_home_promotion_popup_seen";
+  "kingdropp_home_promotion_popup_seen";
 
 /*
  * Module state survives normal Next.js
@@ -243,7 +243,7 @@ export function PromotionPopup({
       }
       role="dialog"
       aria-modal="true"
-      aria-label="GameOn Garb promotion"
+      aria-label="KINGDROPP promotion"
       onMouseDown={(
         event,
       ) => {
@@ -296,7 +296,7 @@ export function PromotionPopup({
             src={
               image
             }
-            alt="GameOn Garb promotion"
+            alt="KINGDROPP promotion"
             draggable={
               false
             }

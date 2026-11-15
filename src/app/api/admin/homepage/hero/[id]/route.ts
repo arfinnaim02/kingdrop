@@ -1,3 +1,4 @@
+import { isKingdroppManagedPublicId } from "@/lib/cloudinary-namespace";
 import {
   NextRequest,
   NextResponse,
@@ -386,6 +387,7 @@ export async function DELETE(
 async function safelyDeleteCloudinary(
   publicId: string,
 ) {
+  if (!isKingdroppManagedPublicId(publicId)) return;
   try {
     await cloudinary.uploader.destroy(
       publicId,

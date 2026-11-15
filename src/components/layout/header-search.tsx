@@ -553,13 +553,13 @@ export function HeaderSearch() {
           <section
             id="global-store-search"
             className="header-search-panel desktop-only"
-            aria-label="Search GameOn Garb"
+            aria-label="Search KINGDROPP"
           >
             <div className="container header-search-container">
               <div className="header-search-top">
                 <div>
                   <span>
-                    Search GameOn Garb
+                    Search KINGDROPP
                   </span>
 
                   <strong>

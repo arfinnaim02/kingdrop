@@ -1470,7 +1470,7 @@ if (
       url;
 
     link.download =
-      `game-on-garb-orders-${new Date()
+      `kingdropp-orders-${new Date()
         .toISOString()
         .slice(
           0,
@@ -1570,7 +1570,7 @@ if (
           <p>
             Review, confirm,
             fulfil and monitor
-            every GameOn Garb
+            every KINGDROPP
             order from one
             workspace.
           </p>

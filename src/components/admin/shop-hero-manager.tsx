@@ -2000,7 +2000,7 @@ export function ShopHeroManager() {
                     }
                   >
                     <span>
-                      GameOn Garb
+                      KINGDROPP
                     </span>
 
                     <h3>

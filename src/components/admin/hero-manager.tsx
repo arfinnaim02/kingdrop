@@ -1357,7 +1357,7 @@ setForm(EMPTY_FORM);
                         maxLength={
                           120
                         }
-                        placeholder="Game on. Every day."
+                        placeholder="Rule Your Style."
                         onChange={(
                           event,
                         ) =>
@@ -2045,7 +2045,7 @@ function LivePreview({
           }
         >
           <span>
-            GameOn Garb
+            KINGDROPP
           </span>
 
           <h3>

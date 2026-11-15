@@ -1480,7 +1480,7 @@ function Settings({
         <Field
           name="storeName"
           label="Store Name"
-          value={String(general.storeName ?? "GameOn Garb")}
+          value={String(general.storeName ?? "KINGDROPP")}
         />
         <label style={{ display: "block", margin: "12px 0" }}>
           <input

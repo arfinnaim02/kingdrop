@@ -55,7 +55,7 @@ export function TrackOrderClient() {
           className="field"
           name="order"
           required
-          placeholder="Order number (e.g. GOG-20260920-001)"
+          placeholder="Order number (e.g. KD-20260001)"
         />
         <input
           className="field"
