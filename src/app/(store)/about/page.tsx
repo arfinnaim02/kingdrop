@@ -8,29 +8,15 @@ import {
   ArrowRight,
   BadgeCheck,
   CreditCard,
-  ExternalLink,
   HeartHandshake,
-  Mail,
-  MapPin,
   PackageCheck,
-  Phone,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Truck,
 } from "lucide-react";
 
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaWhatsapp,
-  FaYoutube,
-} from "react-icons/fa6";
-
-import {
-  db,
-  withDatabaseRetry,
-} from "@/lib/db";
+import { getPublicBusinessContacts } from "@/lib/public-business-contact";
 
 import styles from "./about.module.css";
 
@@ -66,61 +52,6 @@ export const metadata:
       "website",
   },
 };
-
-const STORE_ADDRESS =
-  "Shop-03, Road-08, Mirpur-02, opposite Gate-2 of the National Cricket Stadium, Mirpur, Dhaka, Bangladesh.";
-
-const STORE_MAP_URL =
-  "https://www.google.com/maps/place/Gameon+Garb";
-
-const STORE_EMAIL =
-  "gameongarb@gmail.com";
-
-const WHATSAPP_URL =
-  "https://wa.me/8801711992409";
-
-const SOCIAL_LINKS = [
-  {
-    label:
-      "Facebook",
-
-    href:
-      "https://www.facebook.com/GameOnGarb",
-
-    icon:
-      FaFacebookF,
-  },
-  {
-    label:
-      "Instagram",
-
-    href:
-      "https://www.instagram.com/gameon_garb/",
-
-    icon:
-      FaInstagram,
-  },
-  {
-    label:
-      "YouTube",
-
-    href:
-      "https://www.youtube.com/@gameongarb",
-
-    icon:
-      FaYoutube,
-  },
-  {
-    label:
-      "WhatsApp",
-
-    href:
-      WHATSAPP_URL,
-
-    icon:
-      FaWhatsapp,
-  },
-] as const;
 
 const VALUES = [
   {
@@ -208,45 +139,10 @@ const EXPERIENCE = [
   },
 ];
 
-export default async function AboutPage() {
-  const contactSetting =
-    await withDatabaseRetry(
-      () =>
-        db.storeSetting.findUnique({
-          where: {
-            key:
-              "contact",
-          },
-
-          select: {
-            value:
-              true,
-          },
-        }),
-    );
-
-  const contact =
-    (
-      contactSetting?.value ??
-      {}
-    ) as Record<
-      string,
-      unknown
-    >;
-
-  const phone =
-    String(
-      contact.phone ??
-        "",
-    ).trim();
-
-  const telHref =
-    phone
-      ? `tel:${phone.replace(
-          /[^+\d]/g,
-          "",
-        )}`
-      : null;
+export default function AboutPage() {
+  const contact = getPublicBusinessContacts();
+  const telHref = contact.phone ? `tel:${contact.phone.replace(/[^+\d]/g, "")}` : null;
+  const hasPublicContact = Boolean(contact.phone || contact.email || contact.address || contact.mapUrl || contact.whatsappUrl || contact.socials.length);
 
   return (
     <main className={styles.page}>
@@ -257,7 +153,7 @@ export default async function AboutPage() {
         <div className={`container ${styles.heroInner}`}>
           <div className={styles.heroCopy}>
             <span className={styles.kicker}>
-              GameOn Garb
+              KINGDROPP
             </span>
 
             <h1>
@@ -267,7 +163,7 @@ export default async function AboutPage() {
             </h1>
 
             <p className={styles.heroLead}>
-              GameOn Garb brings
+              KINGDROPP brings
               sports, fashion and
               everyday style together
               for people who move with
@@ -343,7 +239,7 @@ export default async function AboutPage() {
 
           <div className={styles.storyCopy}>
             <p>
-              GameOn Garb is a
+              KINGDROPP is a
               Bangladesh-based sports,
               fashion and lifestyle
               brand created for people
@@ -369,7 +265,7 @@ export default async function AboutPage() {
             <p>
               From match day to
               everyday wear, we want
-              GameOn Garb to feel
+              KINGDROPP to feel
               active, confident and
               easy to choose.
             </p>
@@ -616,145 +512,48 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ===================================================
-          LOCATION + CONTACT
-          =================================================== */}
+      {/* Official contacts are shown only after owner verification. */}
       <section className={styles.contactSection}>
         <div className={`container ${styles.contactGrid}`}>
           <div className={styles.locationPanel}>
-            <span className={styles.kicker}>
-              Visit GameOn Garb
-            </span>
-
-            <h2>
-              Find us in
-              Mirpur, Dhaka.
-            </h2>
-
-            <div className={styles.addressBlock}>
-              <MapPin
-                size={24}
-                strokeWidth={1.7}
-              />
-
-              <p>
-                {STORE_ADDRESS}
-              </p>
-            </div>
-
-            <a
-              href={STORE_MAP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.mapAction}
-            >
-              Get Directions
-
-              <ExternalLink
-                size={15}
-              />
-            </a>
+            <span className={styles.kicker}>KINGDROPP / SUPPORT</span>
+            <h2>Questions about your order?</h2>
+            <p>Track an order online or browse our customer information pages.</p>
+            <Link href="/track-order" className={styles.mapAction}>
+              Track Your Order <ArrowRight size={15} />
+            </Link>
           </div>
-
           <div className={styles.contactPanel}>
-            <span>
-              Contact & Support
-            </span>
-
-            <h3>
-              Need help before
-              or after your order?
-            </h3>
-
-            <div className={styles.contactList}>
-              {phone ? (
-                <a
-                  href={telHref ?? undefined}
-                >
-                  <Phone
-                    size={19}
-                    strokeWidth={1.7}
-                  />
-
-                  <div>
-                    <small>
-                      Call Us
-                    </small>
-
-                    <strong>
-                      {phone}
-                    </strong>
-                  </div>
-                </a>
-              ) : null}
-
-              <a
-                href={`mailto:${STORE_EMAIL}`}
-              >
-                <Mail
-                  size={19}
-                  strokeWidth={1.7}
-                />
-
-                <div>
-                  <small>
-                    Email Us
-                  </small>
-
-                  <strong>
-                    {STORE_EMAIL}
-                  </strong>
-                </div>
-              </a>
-
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaWhatsapp
-                  aria-hidden="true"
-                />
-
-                <div>
-                  <small>
-                    WhatsApp
-                  </small>
-
-                  <strong>
-                    Chat with GameOn Garb
-                  </strong>
-                </div>
-              </a>
-            </div>
-
-            <div className={styles.socialBlock}>
-              <small>
-                Follow GameOn Garb
-              </small>
-
-              <div>
-                {SOCIAL_LINKS.map(
-                  ({
-                    label,
-                    href,
-                    icon:
-                      Icon,
-                  }) => (
-                    <a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                      title={label}
-                    >
-                      <Icon />
-                    </a>
-                  ),
-                )}
+            <span>Contact & Support</span>
+            <h3>We're here to help you find your style.</h3>
+            {hasPublicContact ? (
+              <div className={styles.contactList}>
+                {contact.phone && telHref ? (
+                  <a href={telHref}>Call: {contact.phone}</a>
+                ) : null}
+                {contact.email ? (
+                  <a href={`mailto:${contact.email}`}>Email: {contact.email}</a>
+                ) : null}
+                {contact.address ? <p>{contact.address}</p> : null}
+                {contact.mapUrl ? (
+                  <a href={contact.mapUrl} target="_blank" rel="noopener noreferrer">
+                    Get directions
+                  </a>
+                ) : null}
+                {contact.whatsappUrl ? (
+                  <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    WhatsApp Support
+                  </a>
+                ) : null}
+                {contact.socials.map((item) => (
+                  <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer">
+                    {item.label}
+                  </a>
+                ))}
               </div>
-            </div>
+            ) : (
+              <p>Official contact channels will appear here once verified. You can continue to use order tracking and your account.</p>
+            )}
           </div>
         </div>
       </section>
@@ -771,7 +570,7 @@ export default async function AboutPage() {
 
             <h2>
               Find your next
-              GameOn Garb piece.
+              KINGDROPP piece.
             </h2>
           </div>
 
