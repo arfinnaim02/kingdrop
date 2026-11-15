@@ -448,7 +448,7 @@ export default async function AccountSection({
           </h1>
 
           <p>
-            Active GameOn Garb
+            Active KINGDROPP
             coupon codes and
             automatic promotions
             currently available for
