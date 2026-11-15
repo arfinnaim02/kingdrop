@@ -34,6 +34,12 @@ describe("Phase 4D KINGDROPP source brand isolation", () => {
     expect(productPage).toContain('import { BRAND } from "@/lib/brand"');
     expect(productPage).not.toMatch(/GameOn Garb|Game On Garb/);
     expect(productPage).toContain("BRAND.name");
+    for (const path of [
+      "src/app/api/admin/products/route.ts",
+      "src/app/api/admin/products/[id]/route.ts",
+      "src/lib/admin-products.ts",
+      "src/components/admin/product-manager.tsx",
+    ]) expect(source(path)).not.toMatch(/GameOn Garb|Game On Garb/);
   });
 
   it.each(uploadRoutes)("uses isolated Cloudinary folder paths in %s", (path) => {
@@ -53,6 +59,17 @@ describe("Phase 4D KINGDROPP source brand isolation", () => {
     ]) {
       expect(source(path)).not.toMatch(/GameOn Garb|Game On Garb|Experience the Thrill/i);
     }
+  });
+
+  it("uses only KINGDROPP in customer-facing order, search, SEO and email copy", () => {
+    for (const path of [
+      "src/lib/notifications/events.ts",
+      "src/components/layout/header-search.tsx",
+      "src/components/cart/cart-drawer.tsx",
+      "src/app/(store)/blog/page.tsx",
+      "src/app/(store)/blog/[slug]/page.tsx",
+      "src/app/(store)/payment/bkash/result/page.tsx",
+    ]) expect(source(path)).not.toMatch(/GameOn Garb|Game On Garb|Experience the thrill|www\\.gameongarb\\.com/i);
   });
 
   it("never uses the old campaign artwork as homepage fallback", () => {
