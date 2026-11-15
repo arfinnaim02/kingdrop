@@ -3,6 +3,7 @@ import { BRAND } from "@/lib/brand";
 import { getPublicBusinessContacts } from "@/lib/public-business-contact";
 
 export const metadata = {
+  robots: { index: false, follow: true },
   title: `Privacy Policy | ${BRAND.name}`,
   description: "Review KINGDROPP's draft explanation of customer and website data practices.",
 };
