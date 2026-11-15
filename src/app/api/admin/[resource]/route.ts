@@ -1534,12 +1534,12 @@ export async function PUT(
             insideEstimate: z.string(),
             outsideEstimate: z.string(),
           }),
-          payments: z
-            .object({ codEnabled: z.boolean(), bkashEnabled: z.boolean() })
-            .refine(
-              (x) => x.codEnabled || x.bkashEnabled,
-              "At least one payment method must remain enabled",
-            ),
+          // Both payment methods may remain disabled during a staged launch.
+          // Checkout must independently enforce enabledPaymentMethods().
+          payments: z.object({
+            codEnabled: z.boolean(),
+            bkashEnabled: z.boolean(),
+          }),
           general: z.record(z.string(), z.unknown()),
           contact: z.record(z.string(), z.unknown()).optional(),
           social:
@@ -1665,11 +1665,17 @@ export async function PUT(
           }),
         ),
       );
+      // The settings commit is authoritative. An audit-log or cache
+      // invalidation failure must not be misreported as a failed save.
       await audit(auth.id, "SETTINGS_CHANGED", "StoreSetting", null, {
         keys: Object.keys(input),
-      });
-      revalidateStore();
-      return ok("Settings saved");
+      }).catch((error) => console.error("Settings audit failed:", error));
+      try {
+        revalidateStore();
+      } catch (error) {
+        console.error("Settings revalidation failed:", error);
+      }
+      return ok("KINGDROPP settings saved");
     }
 
     if (resource === "categories") {
