@@ -122,7 +122,7 @@ export async function POST(
             cloudinary.uploader.upload_stream(
               {
                 folder:
-                  "game-on-garb/homepage/brand-story",
+                  "kingdropp/homepage/brand-story",
 
                 resource_type:
                   "image",
