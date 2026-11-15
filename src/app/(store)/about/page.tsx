@@ -164,7 +164,7 @@ export default function AboutPage() {
 
             <p className={styles.heroLead}>
               KINGDROPP brings
-              sports, fashion and
+              refined essentials and
               everyday style together
               for people who move with
               confidence, energy and
@@ -184,19 +184,10 @@ export default function AboutPage() {
                 />
               </Link>
 
-              <a
-                href={STORE_MAP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.secondaryAction}
-              >
-                Visit Our Store
-
-                <ExternalLink
-                  size={15}
-                  aria-hidden="true"
-                />
-              </a>
+              <Link href="/track-order" className={styles.secondaryAction}>
+                Track Your Order
+                <ArrowRight size={15} aria-hidden="true" />
+              </Link>
             </div>
           </div>
 
@@ -206,7 +197,7 @@ export default function AboutPage() {
             </span>
 
             <strong>
-              Experience
+              Rule Your
               <br />
               The Thrill.
             </strong>
