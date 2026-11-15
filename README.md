@@ -109,3 +109,13 @@ Never commit production secrets or customer data.
 ## Repository and review workflow
 
 All KINGDROPP updates require discussion and explicit approval. Implement changes on a feature branch for review, and do not merge to `main` until reviewed. The separate Gameon Garb repository must remain untouched.
+
+## Phase 4C — verified brand contacts and legal drafts
+
+The About, Contact, generic information, privacy and terms pages no longer inherit original Gameon Garb business details. Public contact information comes only from `src/lib/public-business-contact.ts`. It defaults to empty until `KINGDROPP_CONTACTS_VERIFIED=true` and the independently verified `KINGDROPP_CONTACT_*`, `KINGDROPP_MAP_URL`, `KINGDROPP_WHATSAPP_URL` and social URLs are populated. Unverified and recognizable old-brand values are filtered out. The production website must not display an unverified physical shop.
+
+The `/terms`, `/privacy-policy` and `/returns` pages contain **clearly labeled working drafts**, not approved final policies. The business owner and appropriate legal reviewer must confirm operator identity, customer contact, delivery, returns, refunds, actual data processors, retention, user rights, applicable consumer law and effective dates **before launch**. Never represent those drafts as adopted terms without approval.
+
+The sitemap now uses the real `/privacy-policy` route rather than the generic `/privacy` alias and includes `/size-guide`. Static assets `public/brand/game-on-garb-logo.svg` and `src/app/icon.png` remain **unchanged** awaiting official KINGDROPP artwork. The shared logo's link accessibility label is updated, but it still visually displays the inherited placeholder; replacing it requires separate approval. Do not publish the storefront as a finished KINGDROPP website until that is resolved.
+
+Phase 4C performs source changes only: no database, payment, hosting, account or third-party service is modified.
