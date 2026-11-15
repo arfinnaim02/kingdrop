@@ -8,7 +8,7 @@ import {
 
 export const metadata: Metadata = {
   title:
-    "Category Images | GameOn Garb Admin",
+    "Category Images | KINGDROPP Admin",
 };
 
 export const dynamic =
