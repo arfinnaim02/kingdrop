@@ -5,7 +5,7 @@
  */
 function safeValue(value: string | undefined): string | null {
   const clean = value?.trim();
-  if (!clean || /game[\s_-]?on[\s_-]?garb|gameongarb|gog[-_]/i.test(clean)) return null;
+  if (!clean || /game[\s_+%-]*on[\s_+%-]*garb|gameongarb|gog[-_]/i.test(clean)) return null;
   return clean;
 }
 
