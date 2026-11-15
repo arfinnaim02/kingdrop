@@ -21,7 +21,7 @@ describe("KINGDROPP verified contact publication", () => {
     vi.stubEnv("KINGDROPP_CONTACTS_VERIFIED", "true");
     vi.stubEnv("KINGDROPP_CONTACT_EMAIL", "gameongarb@gmail.com");
     vi.stubEnv("KINGDROPP_CONTACT_ADDRESS", "Game On Garb, Dhaka");
-    vi.stubEnv("KINGDROPP_MAP_URL", "https://maps.example.com/gameongarb");
+    vi.stubEnv("KINGDROPP_MAP_URL", "https://www.google.com/maps/place/Gameon+Garb");
     vi.stubEnv("KINGDROPP_FACEBOOK_URL", "https://facebook.com/GameOnGarb");
     const contacts = getPublicBusinessContacts();
     expect(contacts.email).toBeNull();
