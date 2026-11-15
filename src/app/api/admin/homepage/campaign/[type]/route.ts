@@ -1,3 +1,4 @@
+import { isKingdroppManagedPublicId } from "@/lib/cloudinary-namespace";
 import {
   revalidatePath,
 } from "next/cache";
@@ -158,7 +159,7 @@ async function safelyDelete(
     | null
     | undefined,
 ) {
-  if (!publicId) {
+  if (!isKingdroppManagedPublicId(publicId)) {
     return;
   }
 
