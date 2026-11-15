@@ -41,7 +41,7 @@ export function PurchaseTracker({
       }
 
       const storageKey =
-        `gog-purchase-tracked:${orderNumber}`;
+        `kingdropp-purchase-tracked:${orderNumber}`;
 
       try {
         if (
