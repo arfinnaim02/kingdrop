@@ -64,10 +64,10 @@ async function getBrandStorySection() {
             "Brand Story",
 
           heading:
-            "Experience the thrill.",
+            "Rule Your Style.",
 
           subtitle:
-            "More than what you wear. It’s a movement. It’s a mindset.",
+            "Contemporary menswear designed for effortless everyday confidence.",
 
           ctaLabel:
             "Our Story",
