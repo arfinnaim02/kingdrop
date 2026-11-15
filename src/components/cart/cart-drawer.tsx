@@ -132,7 +132,7 @@ export function CartDrawer({
         <header className="cart-drawer-header">
           <div className="cart-drawer-header-copy">
             <span className="cart-drawer-eyebrow">
-              GameOn Garb
+              KINGDROPP
             </span>
 
             <div className="cart-drawer-title-row">
