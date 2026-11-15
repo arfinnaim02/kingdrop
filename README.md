@@ -6,9 +6,9 @@ This repository is independent from the Gameon Garb website. Treat its database,
 
 ## Current migration status
 
-Phases 1–3A establish the brand foundation, premium storefront presentation, and admin/account/email messaging. Phase 3B introduces KD-prefixed new orders, coordinated Telegram identifiers, and guarded initial setup. Full separation is still incomplete until deployment-specific integration verification and legal/content cleanup.
+Phases 1–4B establish the brand foundation, premium storefront, operational separation and launch-safety controls. Phase 4C cleans inherited public copy and contact links and prepares legal drafts. Deployment-specific provider verification, official brand artwork and final policy sign-off remain outstanding.
 
-**Before public launch:** the logo and favicon are still original placeholder assets pending official KINGDROPP artwork. Database-managed product/catalogue, campaign imagery, About/Terms/Privacy content, and any external provider setup still need review. Existing records are not rewritten by the new KD order prefix. Do not deploy as a production KINGDROPP storefront until these remaining issues and external configurations have been verified.
+**Before public launch:** the logo and favicon are still original placeholder assets pending official KINGDROPP artwork. Database-managed products, campaign imagery, final legal policy approvals, verified business contacts and external provider setup still need review. Existing records are not rewritten by the new KD order prefix. Do not deploy as a production KINGDROPP storefront until these remaining issues and external configurations have been verified.
 
 ## Stack
 
