@@ -116,7 +116,7 @@ export async function POST(
             cloudinary.uploader.upload_stream(
               {
                 folder:
-                  `game-on-garb/shop/hero/${variant}`,
+                  `kingdropp/shop/hero/${variant}`,
 
                 resource_type:
                   "image",
