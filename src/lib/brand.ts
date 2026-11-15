@@ -15,7 +15,7 @@ export const BRAND = {
 } as const;
 
 /**
- * There must never be a fallback to the separate Gameon Garb domain.
+ * Only the explicitly configured KINGDROPP domain may be used.
  * An unset site URL leaves sitemap generation disabled and robots restrictive
  * until the KINGDROPP deployment domain is configured.
  */

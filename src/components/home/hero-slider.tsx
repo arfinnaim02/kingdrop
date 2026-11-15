@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { BRAND } from "@/lib/brand";
+import { ChevronRight } from "lucide-react";
 
 import type {
   CSSProperties,
@@ -616,7 +618,44 @@ export function HeroSlider({
         )}
       </div>
 
-      {/* The image is the full hero creative; no separate copy or tint overlays. */}
+      {/* Slide imagery and its admin-managed copy remain in sync. */}
+      <div className="premium-hero-shade" aria-hidden="true" />
+      <div className="premium-hero-glow" aria-hidden="true" />
+
+      <div className="container premium-hero-inner">
+        <div
+          key={`hero-copy-${activeSlide.id}-${activeIndex}`}
+          className="premium-hero-copy"
+        >
+          <div className="premium-hero-eyebrow">
+            <span />
+            {BRAND.name}
+          </div>
+
+          {activeSlide.title.trim() ? (
+            <h1 className="premium-hero-title">
+              {activeSlide.title}
+            </h1>
+          ) : null}
+
+          {activeSlide.subtitle ? (
+            <p className="premium-hero-subtitle">
+              {activeSlide.subtitle}
+            </p>
+          ) : null}
+
+          {activeSlide.ctaLabel && activeSlide.ctaLink ? (
+            <Link
+              href={activeSlide.ctaLink}
+              className="premium-hero-cta"
+            >
+              <span>{activeSlide.ctaLabel}</span>
+              <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
 
       {/* ===================================================
           SLIDE PROGRESS

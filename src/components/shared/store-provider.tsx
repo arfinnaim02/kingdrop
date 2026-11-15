@@ -44,8 +44,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     try {
-      setCart(JSON.parse(localStorage.getItem("gog-cart") || "[]"));
-      setWishlist(JSON.parse(localStorage.getItem("gog-wishlist") || "[]"));
+      setCart(JSON.parse(localStorage.getItem("kingdropp-cart") || "[]"));
+      setWishlist(JSON.parse(localStorage.getItem("kingdropp-wishlist") || "[]"));
       fetch("/api/account/wishlist")
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => {
@@ -56,10 +56,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setReady(true);
   }, []);
   useEffect(() => {
-    if (ready) localStorage.setItem("gog-cart", JSON.stringify(cart));
+    if (ready) localStorage.setItem("kingdropp-cart", JSON.stringify(cart));
   }, [cart, ready]);
   useEffect(() => {
-    if (ready) localStorage.setItem("gog-wishlist", JSON.stringify(wishlist));
+    if (ready) localStorage.setItem("kingdropp-wishlist", JSON.stringify(wishlist));
   }, [wishlist, ready]);
   const value = useMemo<StoreContextValue>(
     () => ({

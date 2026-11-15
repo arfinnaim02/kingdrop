@@ -76,7 +76,7 @@ type SearchResponse = {
    ========================================================= */
 
 const RECENT_SEARCH_KEY =
-  "gog_recent_searches";
+  "kingdropp_recent_searches";
 
 const RECENT_SEARCH_LIMIT =
   6;

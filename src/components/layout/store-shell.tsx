@@ -190,7 +190,7 @@ export function StoreShell({
               ? "item"
               : "items"
           }`}
-          aria-controls="gog-cart-drawer"
+          aria-controls="kingdropp-cart-drawer"
         >
           <span className="floating-cart-icon">
             <ShoppingBag
