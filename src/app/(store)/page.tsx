@@ -416,17 +416,6 @@ export default async function Home() {
         }
       />
 
-      <section className="kingdropp-editorial-intro" aria-label="KINGDROPP collection introduction">
-        <div className="container kingdropp-editorial-inner">
-          <div>
-            <span className="kingdropp-editorial-kicker">{BRAND.name} / THE EVERYDAY EDIT</span>
-            <h2>Style that speaks for itself.</h2>
-            <p>Considered fits, confident essentials, and effortless everyday dressing.</p>
-          </div>
-          <Link href="/shop?sort=newest" className="kingdropp-editorial-link">Explore New Arrivals <span aria-hidden="true">↗</span></Link>
-        </div>
-      </section>
-
       {homepageContent.length >
       0 ? (
         homepageContent
