@@ -53,7 +53,7 @@ type StoreFooterProps = {
    ========================================================= */
 
 // Brand-specific contact/social links are withheld until KINGDROPP's
-// verified details are configured. Do not inherit Gameon Garb contacts.
+// verified details are configured. Use independently verified KINGDROPP contacts only.
 const OFFICIAL_SOCIAL_LINKS: ReadonlyArray<readonly [string, string]> = [];
 
 /* =========================================================
