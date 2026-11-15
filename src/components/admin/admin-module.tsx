@@ -107,23 +107,33 @@ export function AdminModule({
   async function save(resource: string, method: string, body: unknown) {
     setBusy(true);
     setMessage("");
-    const response = await fetch(`/api/admin/${resource}`, {
-      method,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const result = await response
-      .json()
-      .catch(() => ({ error: "Request failed" }));
-    setBusy(false);
-    if (!response.ok) {
-      setMessage(result.error ?? "Request failed");
+    try {
+      const response = await fetch(`/api/admin/${resource}`, {
+        method,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+        cache: "no-store",
+      });
+      const result = await response
+        .json()
+        .catch(() => ({ error: "Unable to read server response." }));
+      if (!response.ok) {
+        const fieldErrors = result.fields && typeof result.fields === "object"
+          ? Object.values(result.fields as Record<string, string[]>).flat().filter(Boolean)
+          : [];
+        setMessage([result.error ?? "Unable to save changes.", ...fieldErrors].join(" "));
+        return false;
+      }
+      setMessage(result.message ?? "KINGDROPP settings saved successfully.");
+      setDrawer(false);
+      router.refresh();
+      return true;
+    } catch {
+      setMessage("Unable to reach the server. No changes were confirmed.");
       return false;
+    } finally {
+      setBusy(false);
     }
-    setMessage(result.message ?? "Saved successfully");
-    setDrawer(false);
-    router.refresh();
-    return true;
   }
 
 
@@ -1467,7 +1477,7 @@ function Settings({
     <>
       <Header
         title="Store Settings"
-        desc="Changes here immediately affect checkout and storefront behavior."
+        desc="KINGDROPP settings are saved to Neon. Public storefront requires Store is live checked and Maintenance mode unchecked."
         action="Save Settings"
         onAction={() => document.getElementById("settings-submit")?.click()}
       />
@@ -1486,7 +1496,7 @@ function Settings({
           <input
             name="storeLive"
             type="checkbox"
-            defaultChecked={general.storeLive !== false}
+            defaultChecked={general.storeLive === true}
           />{" "}
           Store is live
         </label>
@@ -1498,6 +1508,10 @@ function Settings({
           />{" "}
           Maintenance mode
         </label>
+        <p className="muted" style={{ marginBottom: 12 }}>
+          To show the public storefront, enable Store is live and turn off Maintenance mode.
+          Payments can stay disabled while checkout is being configured.
+        </p>
         <h3>Shipping & Delivery</h3>
         <div
           style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
@@ -1533,7 +1547,7 @@ function Settings({
           <input
             name="codEnabled"
             type="checkbox"
-            defaultChecked={payments.codEnabled !== false}
+            defaultChecked={payments.codEnabled === true}
           />{" "}
           Cash on Delivery
         </label>
@@ -2042,7 +2056,7 @@ function Settings({
           <input
             name="bkashEnabled"
             type="checkbox"
-            defaultChecked={payments.bkashEnabled !== false}
+            defaultChecked={payments.bkashEnabled === true}
           />{" "}
           bKash
         </label>
