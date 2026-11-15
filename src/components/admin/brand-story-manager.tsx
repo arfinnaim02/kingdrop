@@ -422,7 +422,7 @@ export function BrandStoryManager() {
           </span>
 
           <h1>
-            Experience the Thrill
+            KINGDROPP Brand Story
           </h1>
 
           <p>
@@ -775,7 +775,7 @@ export function BrandStoryManager() {
           >
             <div>
               <span>
-                GameOn Garb
+                KINGDROPP
               </span>
 
               <h2>
