@@ -3,6 +3,7 @@ import type {
 } from "next";
 
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 
 import {
   notFound,
@@ -61,7 +62,7 @@ export async function generateMetadata({
   if (!result) {
     return {
       title:
-        "Product | GameOn Garb",
+        `Product | ${BRAND.name}`,
     };
   }
 
@@ -80,7 +81,7 @@ export async function generateMetadata({
   return {
     title:
       raw.seoTitle ??
-      `${product.name} | GameOn Garb`,
+      `${product.name} | ${BRAND.name}`,
 
     description,
 
@@ -290,7 +291,7 @@ export default async function ProductPage({
 
       name:
         raw.brand ??
-        "GameOn Garb",
+        BRAND.name,
     },
 
     ...(product.reviewCount &&
