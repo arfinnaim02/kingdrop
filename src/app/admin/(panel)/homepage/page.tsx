@@ -87,7 +87,7 @@ const sections = [
 
   {
     title:
-      "Experience The Thrill",
+      "KINGDROPP Brand Story",
 
     description:
       "Manage the final homepage brand campaign image, copy, CTA and storefront visibility.",
@@ -131,7 +131,7 @@ export default function HomepageBuilderPage() {
             Manage the major
             visual campaigns and
             category artwork of
-            the GameOn Garb
+            the KINGDROPP
             storefront.
           </p>
         </div>
@@ -158,7 +158,7 @@ export default function HomepageBuilderPage() {
           Announcement Bar,
           Hero, Sports, Polo,
           Category Images,
-          Experience The Thrill
+          KINGDROPP Brand Story
           and Promotion Popup
           are connected directly
           to the storefront.
