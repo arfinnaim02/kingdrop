@@ -523,10 +523,9 @@ function configuredProducts(
       ]),
     );
 
-  // The Homepage Builder can prioritize products, while
-  // newly flagged items are appended automatically.
-  // Never let a stale manual selection hide new arrivals
-  // or trending products added later in Admin → Products.
+  // Products flagged in Admin are always considered first,
+  // including when Homepage Builder has 12 older selections.
+  // Manually selected products can fill any remaining slots.
   const selected = ids
     .map((id) =>
       byId.get(id),
@@ -540,14 +539,14 @@ function configuredProducts(
 
   const seen =
     new Set(
-      selected.map((product) =>
+      fallback.map((product) =>
         product.id,
       ),
     );
 
   return [
-    ...selected,
-    ...fallback.filter(
+    ...fallback,
+    ...selected.filter(
       (product) =>
         !seen.has(product.id),
     ),
