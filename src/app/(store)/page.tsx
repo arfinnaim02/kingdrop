@@ -346,6 +346,75 @@ export default async function Home() {
       }
     });
 
+  /*
+   * Admin → Products owns New Arrival / Trending visibility.
+   *
+   * The current Homepage Builder does not expose controls to
+   * create these section records. Older or newly initialized
+   * KingDropp databases may therefore contain no enabled
+   * NEW_ARRIVALS or TRENDING section at all.
+   *
+   * Render the product rails automatically when products have
+   * their respective flags, without creating database records
+   * or changing any other Homepage Builder section.
+   */
+  const automaticProductSections:
+    React.ReactNode[] = [];
+
+  const hasNewArrivalsSection =
+    displaySections.some(
+      (section) =>
+        section.type === "NEW_ARRIVALS",
+    );
+
+  const hasTrendingSection =
+    displaySections.some(
+      (section) =>
+        section.type === "TRENDING",
+    );
+
+  const newArrivalProducts =
+    products.filter(
+      (product) =>
+        product.newArrival === true,
+    );
+
+  const trendingProducts =
+    products.filter(
+      (product) =>
+        product.trending === true,
+    );
+
+  if (
+    !hasNewArrivalsSection &&
+    newArrivalProducts.length > 0
+  ) {
+    automaticProductSections.push(
+      <ProductsSection
+        key="automatic-new-arrivals"
+        title="New Arrivals"
+        products={newArrivalProducts.slice(0, 12)}
+        link="/shop?sort=newest"
+        direction="right-to-left"
+      />,
+    );
+  }
+
+  if (
+    !hasTrendingSection &&
+    trendingProducts.length > 0
+  ) {
+    automaticProductSections.push(
+      <ProductsSection
+        key="automatic-trending"
+        title="Trending Now"
+        products={trendingProducts.slice(0, 12)}
+        link="/shop?sort=featured"
+        direction="left-to-right"
+      />,
+    );
+  }
+
   const homepageContent:
     React.ReactNode[] = [];
 
@@ -395,6 +464,27 @@ export default async function Home() {
 
     homepageContent.push(
       rendered[index],
+    );
+
+    // Product rails appear directly after the hero when
+    // no enabled Homepage Builder section exists for them.
+    if (
+      current.type === "HERO" &&
+      automaticProductSections.length > 0
+    ) {
+      homepageContent.push(
+        ...automaticProductSections,
+      );
+    }
+  }
+
+  if (
+    !displaySections.some(
+      (section) => section.type === "HERO",
+    )
+  ) {
+    homepageContent.unshift(
+      ...automaticProductSections,
     );
   }
 
