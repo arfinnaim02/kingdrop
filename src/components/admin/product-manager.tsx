@@ -1866,6 +1866,62 @@ export function ProductManager({
     }
   }
 
+  // Keep multipart requests safely under Vercel's 4.5 MB Function limit.
+  // Original images within this budget are preserved without re-encoding.
+  async function prepareProductImage(file: File): Promise<File> {
+    const targetBytes = 3.5 * 1024 * 1024;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error(`"${file.name}": use JPG, PNG, WEBP or AVIF.`);
+    }
+
+    if (file.size <= targetBytes) {
+      return file;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      const image = new window.Image();
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("Unable to read the image."));
+        image.src = objectUrl;
+      });
+
+      let scale = Math.min(1, 1600 / image.naturalWidth, 1200 / image.naturalHeight);
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("Image optimization is unavailable in this browser.");
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const quality = [0.86, 0.75, 0.65, 0.55, 0.45][attempt];
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, "image/webp", quality),
+        );
+        if (!blob || blob.type !== "image/webp") {
+          throw new Error("This browser could not optimize the image to WEBP.");
+        }
+        if (blob.size <= targetBytes) {
+          const basename = file.name.replace(/\.[^.]+$/, "");
+          return new File([blob], `${basename}.webp`, {
+            type: "image/webp",
+            lastModified: Date.now(),
+          });
+        }
+        scale *= 0.75;
+      }
+
+      throw new Error(`"${file.name}" is too large to optimize for upload.`);
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+  }
+
   async function uploadImages(
     event:
       ChangeEvent<HTMLInputElement>,
@@ -1918,12 +1974,15 @@ export function ProductManager({
           remaining,
         )
       ) {
+        const preparedFile =
+          await prepareProductImage(file);
+
         const payload =
           new FormData();
 
         payload.append(
           "file",
-          file,
+          preparedFile,
         );
 
         const response =
@@ -1938,27 +1997,32 @@ export function ProductManager({
             },
           );
 
+        const contentType =
+          response.headers.get("content-type") ?? "";
+
         const data =
-          (await response.json()) as
-            | ProductUploadResponse
-            | {
-                error?:
-                  string;
-              };
+          contentType.includes("application/json")
+            ? (await response.json()) as
+                | ProductUploadResponse
+                | { error?: string }
+            : null;
 
         if (
           !response.ok ||
-          !(
-            "image" in
-            data
-          )
+          !data ||
+          !("image" in data)
         ) {
+          const serverMessage =
+            data && "error" in data
+              ? data.error
+              : undefined;
           throw new Error(
-            "error" in
-              data
-              ? data.error ??
-                  "Upload failed."
-              : "Upload failed.",
+            serverMessage ??
+              (response.status === 413
+                ? "Image upload exceeded the server limit. Try a smaller image."
+                : response.status === 401 || response.status === 403
+                  ? "Your admin session has expired or access was denied. Sign in again."
+                  : `Image upload failed (HTTP ${response.status}). Check the upload configuration or Vercel logs.`),
           );
         }
 
