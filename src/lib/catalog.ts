@@ -393,6 +393,12 @@ export function toStoreProduct(
     variants:
       storeVariants,
 
+    newArrival:
+      product.newArrival,
+
+    trending:
+      product.trending,
+
     badge:
       product.featured
         ? "FEATURED"

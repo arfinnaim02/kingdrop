@@ -206,10 +206,8 @@ export default async function Home() {
 
                 products.filter(
                   (product) =>
-                    product.badge ===
-                      "NEW" ||
-                    product.badge ===
-                      "FEATURED",
+                    product.newArrival ===
+                    true,
                 ),
 
                 products,
@@ -310,7 +308,8 @@ export default async function Home() {
 
                 products.filter(
                   (product) =>
-                    product.stock > 0,
+                    product.trending ===
+                    true,
                 ),
 
                 products,
@@ -524,7 +523,10 @@ function configuredProducts(
       ]),
     );
 
-  return ids
+  // Products flagged in Admin are always considered first,
+  // including when Homepage Builder has 12 older selections.
+  // Manually selected products can fill any remaining slots.
+  const selected = ids
     .map((id) =>
       byId.get(id),
     )
@@ -534,6 +536,21 @@ function configuredProducts(
       ): product is StoreProduct =>
         Boolean(product),
     );
+
+  const seen =
+    new Set(
+      fallback.map((product) =>
+        product.id,
+      ),
+    );
+
+  return [
+    ...fallback,
+    ...selected.filter(
+      (product) =>
+        !seen.has(product.id),
+    ),
+  ];
 }
 
 
