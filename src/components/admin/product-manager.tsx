@@ -307,7 +307,7 @@ function createVariantSku(
     string,
 ) {
   const parts = [
-    "GOG",
+    "KD",
     skuBase(
       productSlug,
       productName,

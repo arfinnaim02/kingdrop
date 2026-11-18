@@ -114,7 +114,7 @@ export function CartDrawer({
       }
     >
         <aside
-        id="gog-cart-drawer"
+        id="kingdropp-cart-drawer"
         className="cart-drawer"
         role="dialog"
         aria-modal="true"

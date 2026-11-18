@@ -136,8 +136,8 @@ function absoluteUrl(value: string) {
 
 function logoUrl(): string {
   const configured = process.env.EMAIL_LOGO_URL?.trim();
-  if (!configured || /game[ -]?on[ -]?garb|gameongarb/i.test(configured)) return "";
-  return absoluteUrl(configured);
+  const legacy = configured && /game[ -]?on[ -]?garb|gameongarb/i.test(configured);
+  return absoluteUrl(!configured || legacy ? "/images/brand/kingdropp-email-logo.png" : configured);
 }
 
 function formatEventTitle(

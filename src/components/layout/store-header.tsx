@@ -273,7 +273,7 @@ export function StoreHeader({
                   ? "item"
                   : "items"
               }`}
-              aria-controls="gog-cart-drawer"
+              aria-controls="kingdropp-cart-drawer"
               onClick={
                 onCartOpen
               }

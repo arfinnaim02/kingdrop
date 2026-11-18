@@ -55,11 +55,12 @@ export function TrackingScripts({
 
   return (
     <>
-      <script
-        id="gog-tracking-runtime-config"
+      <Script
+        strategy="afterInteractive"
+        id="kingdropp-tracking-runtime-config"
         dangerouslySetInnerHTML={{
           __html:
-            `window.__GOG_TRACKING_CONFIG__=${runtimeConfig};`,
+            `window.__KINGDROPP_TRACKING_CONFIG__=${runtimeConfig};`,
         }}
       />
       {/* =====================================================
@@ -69,7 +70,7 @@ export function TrackingScripts({
       {gtmEnabled ? (
         <>
           <Script
-            id="gog-gtm-bootstrap"
+            id="kingdropp-gtm-bootstrap"
             strategy="afterInteractive"
           >
             {`
@@ -128,7 +129,7 @@ export function TrackingScripts({
       {metaEnabled ? (
         <>
           <Script
-            id="gog-meta-pixel-bootstrap"
+            id="kingdropp-meta-pixel-bootstrap"
             strategy="afterInteractive"
           >
             {`
