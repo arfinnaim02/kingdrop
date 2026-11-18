@@ -6,3 +6,15 @@ coverage
 *.zip
 *.log
 *.tsbuildinfo
+
+# Local database comparisons
+kingdropp-*-diff*.sql
+
+# Local administrative recovery scripts
+reset-kingdropp-admin.cjs
+
+# Environment secrets
+.env
+.env.local
+.env.production
+.env.development
