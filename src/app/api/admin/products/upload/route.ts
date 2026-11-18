@@ -25,8 +25,9 @@ export const runtime =
 export const dynamic =
   "force-dynamic";
 
+// Stay below Vercel's 4.5 MB total request limit, including multipart overhead.
 const MAX_FILE_SIZE =
-  8 * 1024 * 1024;
+  4 * 1024 * 1024;
 
 const ALLOWED_TYPES =
   new Set([
@@ -107,11 +108,23 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Image must be 8MB or smaller.",
+            "Image must be 4MB or smaller. Please optimize the image before uploading.",
         },
         {
           status: 400,
         },
+      );
+    }
+
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      console.error("Product upload: Cloudinary configuration is incomplete.");
+      return NextResponse.json(
+        { error: "Image storage is not configured. Check Cloudinary environment variables in Vercel." },
+        { status: 503 },
       );
     }
 
