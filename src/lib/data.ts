@@ -62,6 +62,10 @@ export type Product = {
 
   stock: number;
 
+  /** Admin-managed homepage merchandising flags. */
+  newArrival?: boolean;
+  trending?: boolean;
+
   badge?: string;
 
   reviewCount?: number;
