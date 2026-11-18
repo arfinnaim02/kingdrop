@@ -206,10 +206,8 @@ export default async function Home() {
 
                 products.filter(
                   (product) =>
-                    product.badge ===
-                      "NEW" ||
-                    product.badge ===
-                      "FEATURED",
+                    product.newArrival ===
+                    true,
                 ),
 
                 products,
@@ -310,7 +308,8 @@ export default async function Home() {
 
                 products.filter(
                   (product) =>
-                    product.stock > 0,
+                    product.trending ===
+                    true,
                 ),
 
                 products,
@@ -524,7 +523,11 @@ function configuredProducts(
       ]),
     );
 
-  return ids
+  // The Homepage Builder can prioritize products, while
+  // newly flagged items are appended automatically.
+  // Never let a stale manual selection hide new arrivals
+  // or trending products added later in Admin → Products.
+  const selected = ids
     .map((id) =>
       byId.get(id),
     )
@@ -534,6 +537,21 @@ function configuredProducts(
       ): product is StoreProduct =>
         Boolean(product),
     );
+
+  const seen =
+    new Set(
+      selected.map((product) =>
+        product.id,
+      ),
+    );
+
+  return [
+    ...selected,
+    ...fallback.filter(
+      (product) =>
+        !seen.has(product.id),
+    ),
+  ];
 }
 
 
